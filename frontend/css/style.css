@@ -1,0 +1,525 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'STKaiti', 'KaiTi', 'SimSun', 'Microsoft YaHei', serif;
+  background: 
+    url('../images/bg.png') repeat center center;
+  background-color: #000;
+  background-size: 300px auto;
+  color: #e8dcc0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px;
+  position: relative;
+}
+
+/* 黑色遮罩减淡，让背景更清晰 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  background: rgba(10, 8, 6, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 
+    0 0 30px rgba(212, 175, 55, 0.25),
+    0 0 60px rgba(212, 175, 55, 0.1),
+    inset 0 0 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.app::before,
+.app::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d4af37;
+  pointer-events: none;
+}
+.app::before {
+  top: 6px; left: 6px;
+  border-right: none;
+  border-bottom: none;
+}
+.app::after {
+  bottom: 6px; right: 6px;
+  border-left: none;
+  border-top: none;
+}
+
+h1 {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 14px;
+  color: #d4af37;
+  text-shadow: 
+    0 0 10px rgba(212, 175, 55, 0.8),
+    0 0 20px rgba(212, 175, 55, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.9);
+  letter-spacing: 4px;
+  font-family: 'STKaiti', 'KaiTi', serif;
+  font-weight: bold;
+}
+
+/* ============ 登录注册 ============ */
+.auth {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth input {
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid #5a4a20;
+  background: rgba(10, 8, 6, 0.7);
+  color: #e8dcc0;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: 0.2s;
+}
+
+.auth input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.auth button, .btn {
+  padding: 9px;
+  border-radius: 4px;
+  border: 1px solid #d4af37;
+  background: linear-gradient(180deg, #d4af37 0%, #8a6a2a 100%);
+  color: #0a0806;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  letter-spacing: 2px;
+  font-family: inherit;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.auth button:hover, .btn:hover {
+  background: linear-gradient(180deg, #f4d060 0%, #a88a3a 100%);
+  box-shadow: 
+    0 0 12px rgba(212, 175, 55, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn:disabled {
+  background: #2a2418;
+  color: #5a4a20;
+  border-color: #3a3020;
+  cursor: not-allowed;
+  text-shadow: none;
+}
+
+/* ============ 属性栏 ============ */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.stat {
+  background: rgba(10, 8, 6, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid #3a3020;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #b8a878;
+  transition: 0.2s;
+}
+
+.stat:hover {
+  border-color: #d4af37;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+.stat span {
+  color: #d4af37;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(212, 175, 55, 0.5);
+}
+
+/* ============ 血条 / 蓝条 / 经验条 ============ */
+.bar {
+  height: 16px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #3a3020;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 4px 0 8px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9);
+  position: relative;
+}
+
+.bar > div {
+  height: 100%;
+  transition: width 0.3s;
+  position: relative;
+}
+
+.bar > div::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 50%, rgba(0, 0, 0, 0.2));
+  pointer-events: none;
+}
+
+.hp-bar > div {
+  background: linear-gradient(180deg, #e91e63 0%, #8a0a30 100%);
+  box-shadow: 0 0 8px rgba(233, 30, 99, 0.6);
+}
+
+.mp-bar > div {
+  background: linear-gradient(180deg, #9c27b0 0%, #4a0a5a 100%);
+  box-shadow: 0 0 8px rgba(156, 39, 176, 0.6);
+}
+
+.exp-bar > div {
+  background: linear-gradient(180deg, #d4af37 0%, #8a6a2a 100%);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+/* ============ 标签栏 ============ */
+.tabs {
+  display: flex;
+  margin: 12px 0 0;
+  border-bottom: 1px solid #d4af37;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #8a7a4a;
+  cursor: pointer;
+  border: 1px solid #3a3020;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: rgba(10, 8, 6, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: 0.2s;
+  margin-right: 2px;
+  letter-spacing: 1px;
+}
+
+.tab:hover {
+  color: #d4af37;
+  border-color: #5a4a20;
+}
+
+.tab.active {
+  color: #d4af37;
+  border-color: #d4af37;
+  background: rgba(42, 32, 21, 0.7);
+  position: relative;
+  top: 1px;
+  box-shadow: 
+    0 -2px 8px rgba(212, 175, 55, 0.3),
+    inset 0 1px 0 rgba(212, 175, 55, 0.5);
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
+}
+
+.tab-content {
+  background: rgba(10, 8, 6, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid #d4af37;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 10px;
+  min-height: 300px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* ============ 怪物 ============ */
+.monster {
+  background: rgba(10, 8, 6, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 10px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+  transition: 0.2s;
+}
+
+.monster .name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  letter-spacing: 2px;
+}
+
+.monster.normal .name { 
+  color: #4ecca3; 
+  text-shadow: 0 0 6px rgba(78, 204, 163, 0.5); 
+}
+.monster.elite .name  { 
+  color: #d4af37; 
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.8); 
+}
+.monster.boss .name   { 
+  color: #e91e63; 
+  text-shadow: 0 0 12px rgba(233, 30, 99, 0.8); 
+}
+
+/* ============ 战斗日志 ============ */
+.log {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 8px;
+  height: 140px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+.log .normal { color: #a89878; }
+.log .elite  { color: #d4af37; }
+.log .boss   { color: #e91e63; }
+.log .good   { color: #4ecca3; }
+.log .bad    { color: #ff5773; }
+.log .drop   { color: #d4af37; font-weight: bold; text-shadow: 0 0 6px rgba(212, 175, 55, 0.6); }
+
+/* ============ 按钮区 ============ */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.actions .btn {
+  font-size: 12px;
+  padding: 8px 4px;
+  letter-spacing: 1px;
+}
+
+/* ============ 装备栏 ============ */
+.equipment-panel {
+  background: rgba(10, 8, 6, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.equipment-title {
+  font-size: 13px;
+  color: #d4af37;
+  margin-bottom: 8px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-bottom: 1px dashed #5a4a20;
+  padding-bottom: 4px;
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+}
+
+.equipment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.eq-slot {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  transition: 0.2s;
+}
+
+.eq-slot:hover {
+  border-color: #d4af37;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.eq-slot.empty {
+  color: #5a4a20;
+  font-style: italic;
+}
+
+.eq-slot.artifact {
+  background: linear-gradient(135deg, rgba(42, 15, 42, 0.7) 0%, rgba(16, 5, 16, 0.7) 100%);
+  border: 1px solid #9c27b0;
+  box-shadow: 
+    0 0 10px rgba(156, 39, 176, 0.5),
+    inset 0 0 20px rgba(156, 39, 176, 0.1);
+}
+
+.eq-name {
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.eq-stat {
+  color: #d4af37;
+  font-size: 12px;
+  margin-top: 2px;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(212, 175, 55, 0.4);
+}
+
+.eq-actions {
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.eq-affix {
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* ============ 背包 ============ */
+.bag-panel {
+  background: rgba(10, 8, 6, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.bag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bag-item {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  transition: 0.2s;
+}
+
+.bag-item:hover {
+  border-color: #5a4a20;
+}
+
+.bag-name {
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.bag-info {
+  color: #b8a878;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.bag-btns {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* ============ 天赋 ============ */
+.talent-panel {
+  background: rgba(10, 8, 6, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.talent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.talent-item {
+  background: rgba(10, 8, 6, 0.55);
+  border-left: 3px solid #d4af37;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.talent-name {
+  font-weight: bold;
+  margin-bottom: 2px;
+  text-shadow: 0 0 4px rgba(212, 175, 55, 0.3);
+}
+
+.talent-desc {
+  color: #b8a878;
+  font-size: 11px;
+}
+
+/* ============ 工具类 ============ */
+.hidden { display: none !important; }
+.center { text-align: center; }
+.title-sm { font-size: 13px; color: #b8a878; margin-bottom: 4px; }
+
+/* ============ 滚动条 ============ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 8, 6, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: #3a3020;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}

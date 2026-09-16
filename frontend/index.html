@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>肉鸽杀怪</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <h1>⚔️ 肉鸽杀怪</h1>
+
+  <!-- 登录注册 -->
+  <div id="authPanel" class="auth">
+    <input id="username" placeholder="用户名" />
+    <input id="password" type="password" placeholder="密码" />
+    <button onclick="doRegister()">注册</button>
+    <button onclick="doLogin()">登录</button>
+    <div id="authMsg" class="center" style="color:#a02828;font-size:13px;"></div>
+  </div>
+
+  <!-- 游戏主界面 -->
+  <div id="gamePanel" class="hidden">
+
+    <!-- 属性栏 -->
+    <div class="stats">
+      <div class="stat">攻击力: <span id="sAtk">1</span></div>
+      <div class="stat">击杀: <span id="sKill">0</span></div>
+      <div class="stat">金币: <span id="sGold">0</span></div>
+      <div class="stat">灵魂: <span id="sSoul">0</span></div>
+      <div class="stat">劫力: <span id="sJieli">0</span> 层</div>
+      <div class="stat">自由点: <span id="sFreePoints">0</span></div>
+      <div class="stat">吸血: <span id="sDrain">0%</span></div>
+      <div class="stat">金币加成: <span id="sGoldBonus">0%</span></div>
+    </div>
+
+    <!-- 等级 + 经验条 -->
+    <div class="title-sm">等级 <span id="lvText">Lv.1</span> · 经验 <span id="expText">0/100</span></div>
+    <div class="bar exp-bar"><div id="expBar" style="width:0%"></div></div>
+
+    <!-- 血条 -->
+    <div class="title-sm">血量 <span id="hpText">100/100</span></div>
+    <div class="bar hp-bar"><div id="hpBar" style="width:100%"></div></div>
+
+    <!-- 蓝条 -->
+    <div class="title-sm">精神力 <span id="mpText">50/50</span></div>
+    <div class="bar mp-bar"><div id="mpBar" style="width:100%"></div></div>
+
+    <!-- 标签栏 -->
+    <div class="tabs">
+      <div class="tab active" data-tab="battle" onclick="switchTab('battle')">⚔️ 战斗</div>
+      <div class="tab" data-tab="bag" onclick="switchTab('bag')">🎒 背包</div>
+      <div class="tab" data-tab="talent" onclick="switchTab('talent')">✨ 天赋</div>
+    </div>
+
+    <!-- 标签内容区 -->
+    <div class="tab-content">
+
+      <!-- 战斗标签 -->
+      <div class="tab-pane active" id="tab-battle">
+        <div id="monsterBox" class="monster normal">
+          <div class="name" id="mName">史莱姆</div>
+          <div class="title-sm">血量 <span id="mHpText">30/30</span></div>
+          <div class="bar hp-bar"><div id="mHpBar" style="width:100%"></div></div>
+          <div class="title-sm">攻击 <span id="mAtk">3</span></div>
+        </div>
+
+        <div class="log" id="log"></div>
+
+        <div class="actions">
+          <button class="btn" onclick="autoFight()" id="btnAuto">自动战斗</button>
+          <button class="btn" onclick="useSkill('heavy')">重击(8)</button>
+          <button class="btn" onclick="useSkill('heal')">治疗(10)</button>
+          <button class="btn" onclick="useSkill('drain')">吸血(12)</button>
+          <button class="btn" onclick="useSkill('rage')">狂暴(15)</button>
+          <button class="btn" onclick="logout()">退出</button>
+        </div>
+      </div>
+
+      <!-- 背包标签 -->
+      <div class="tab-pane" id="tab-bag">
+        <!-- 装备栏 -->
+        <div class="equipment-panel">
+          <div class="equipment-title">
+            🗡️ 装备栏
+            <span onclick="onAutoEquip()" style="float:right;cursor:pointer;color:#8a6a2a;font-size:12px;margin-left:8px;">[自动装备]</span>
+          </div>
+          <div class="equipment-grid">
+            <div class="eq-slot empty" id="eq-weapon">武器：空</div>
+            <div class="eq-slot empty" id="eq-armor">护甲：空</div>
+            <div class="eq-slot empty" id="eq-ring">戒指：空</div>
+            <div class="eq-slot empty" id="eq-necklace">项链：空</div>
+            <div class="eq-slot empty" id="eq-artifact1">神器·上：空</div>
+            <div class="eq-slot empty" id="eq-artifact2">神器·下：空</div>
+          </div>
+        </div>
+
+        <!-- 背包 -->
+        <div class="bag-panel">
+          <div class="equipment-title">🎒 背包（每槽位最多 10 件）</div>
+          <div class="bag-list" id="bagList"></div>
+        </div>
+      </div>
+
+      <!-- 天赋标签 -->
+      <div class="tab-pane" id="tab-talent">
+        <div class="talent-panel">
+          <div class="equipment-title">
+            ✨ 天赋
+            <span onclick="onDrawTalent()" style="float:right;cursor:pointer;color:#8a6a2a;font-size:12px;">[抽取 (1000金币)]</span>
+          </div>
+          <div id="talentList" class="talent-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/equipment.js"></script>
+<script src="js/talent.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
