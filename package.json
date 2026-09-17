@@ -1,0 +1,8 @@
+{
+  "name": "roguelike-game",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "cd backend && node app.js",
+    "postinstall": "cd backend && npm install"
+  }
+}
