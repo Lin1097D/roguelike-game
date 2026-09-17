@@ -21,7 +21,7 @@ app.use('/api/save', saveRouter);
 app.use('/api/battle', battleRouter);
 app.use('/api/equipment', equipmentApiRouter);
 app.use('/api/talent', talentRouter);
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });

@@ -1,6 +1,6 @@
 // 前端配置 - 和游戏逻辑解耦
 const CONFIG = {
-  API_BASE: 'http://localhost:3000/api',
+  API_BASE: 'https://roguelike-game-production-2110.up.railway.app/api',
 
   // 技能配置
   skills: {

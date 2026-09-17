@@ -25,8 +25,6 @@
 // module.exports = pool;
 
 const mysql = require('mysql2/promise');
-console.log('[DB] DATABASE_URL =', process.env.DATABASE_URL ? '已设置' : '未设置');
-console.log('[DB] 完整值 =', process.env.DATABASE_URL);
 const pool = mysql.createPool(process.env.DATABASE_URL);
 
 module.exports = pool;
