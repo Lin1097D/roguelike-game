@@ -1,6 +1,6 @@
 // 前端配置 - 和游戏逻辑解耦
 const CONFIG = {
-  API_BASE: 'http://115.29.177.219:8080/api',
+  API_BASE: 'http://115.29.177.219/api',
 
   // 技能配置
   skills: {
