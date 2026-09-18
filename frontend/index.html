@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>肉鸽杀怪</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -46,6 +46,8 @@
       <div class="tab" data-tab="bag" onclick="switchTab('bag')">🎒 背包</div>
       <div class="tab" data-tab="talent" onclick="switchTab('talent')">✨ 天赋</div>
       <div class="tab" data-tab="shop" onclick="switchTab('shop')">🛒 商店</div>
+	  <div class="tab" data-tab="achievement" onclick="switchTab('achievement')">🏆 成就</div>
+	  <div class="tab" data-tab="daily" onclick="switchTab('daily')">📅 每日</div>
     </div>
 
     <div class="tab-content">
@@ -113,6 +115,19 @@
         <div class="equipment-title">🛒 商店</div>
         <div id="shopList" class="shop-list"></div>
       </div>
+	  <!-- 成就 -->
+	  <div class="tab-pane" id="tab-achievement">
+	    <div class="equipment-title">🏆 成就</div>
+	    <div id="achievementList" class="achievement-list"></div>
+	  </div>
+	  <!-- 每日任务 -->
+	  <div class="tab-pane" id="tab-daily">
+	    <div class="equipment-title">📅 每日任务</div>
+	    <div id="dailyList" class="daily-list"></div>
+	    <div style="margin-top:12px;text-align:center;">
+	      <button class="btn" onclick="onRebirth()" style="padding:8px 16px;">🔄 转生（需 100 级）</button>
+	    </div>
+	  </div>
     </div>
   </div>
 </div>
@@ -125,5 +140,7 @@
 <script src="js/shop.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/main.js"></script>
+<script src="js/achievement.js"></script>
+<script src="js/daily.js"></script>
 </body>
 </html>

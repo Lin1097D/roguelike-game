@@ -1,3 +1,47 @@
+// ============ 伤害数字飘出 ============
+function showDamageNumber(text, isCrit) {
+  const el = document.createElement('div');
+  el.className = 'damage-float' + (isCrit ? ' crit' : '');
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ============ 音效管理 ============
+const Sound = {
+  cache: {},
+
+  play(name) {
+    if (!CONFIG.soundEnabled) return;
+    try {
+      if (!this.cache[name]) {
+        const path = CONFIG.sounds[name];
+        if (!path) return;
+        this.cache[name] = new Audio(path);
+      }
+      const audio = this.cache[name].cloneNode();
+      audio.volume = 0.3;
+      audio.play().catch(() => {});
+    } catch (e) {}
+  },
+
+  toggle() {
+    CONFIG.soundEnabled = !CONFIG.soundEnabled;
+    UI.log(CONFIG.soundEnabled ? '🔊 音效已开启' : '🔇 音效已关闭', 'normal');
+    localStorage.setItem('soundEnabled', CONFIG.soundEnabled ? '1' : '0');
+    const btn = document.getElementById('btnSound');
+    if (btn) {
+      btn.textContent = CONFIG.soundEnabled ? '🔊 音效' : '🔇 音效';
+    }
+  }
+};
+
+// 从 localStorage 恢复音效设置
+if (localStorage.getItem('soundEnabled') === '0') {
+  CONFIG.soundEnabled = false;
+}
+
+// ============ 工具函数 ============
 function actualStat(statValue, enhanceLevel) {
   const lv = enhanceLevel || 0;
   const val = statValue * (1 + lv * 0.1);
@@ -13,7 +57,6 @@ function enhanceColor(lv) {
   return '#fff';
 }
 
-// 渲染词条
 function renderAffixes(affixes) {
   if (!affixes || affixes.length === 0) return '';
   return affixes.map(a => {
@@ -27,6 +70,7 @@ function renderAffixes(affixes) {
   }).join('');
 }
 
+// ============ UI 对象 ============
 const UI = {
   log(msg, cls = '') {
     const el = document.getElementById('log');
@@ -50,11 +94,12 @@ const UI = {
     document.getElementById('mpBar').style.width = (save.mp / save.max_mp * 100) + '%';
     document.getElementById('sDrain').textContent = ((save.drain || 0) * 100).toFixed(2) + '%';
     document.getElementById('sGoldBonus').textContent = ((save.gold_bonus || 0) * 100).toFixed(1) + '%';
-	// 等级和经验
-	const needExp = Math.floor(100 * save.level * Math.pow(1.2, (save.level || 1) - 1));
-	document.getElementById('lvText').textContent = 'Lv.' + (save.level || 1);
-	document.getElementById('expText').textContent = (save.exp || 0) + '/' + needExp;
-	document.getElementById('expBar').style.width = Math.min(100, (save.exp || 0) / needExp * 100) + '%';
+
+    // 等级和经验
+    const needExp = Math.floor(100 * save.level * Math.pow(1.2, (save.level || 1) - 1));
+    document.getElementById('lvText').textContent = 'Lv.' + (save.level || 1);
+    document.getElementById('expText').textContent = (save.exp || 0) + '/' + needExp;
+    document.getElementById('expBar').style.width = Math.min(100, (save.exp || 0) / needExp * 100) + '%';
   },
 
   renderEquipment(equipped) {
@@ -142,17 +187,18 @@ const UI = {
       return;
     }
     el.innerHTML = list.map(t => {
-      const color = CONFIG.talentQualityColors[t.quality] || '#aaa';
+      const colors = CONFIG.talentQualityColors || {};
+      const color = colors[t.quality] || '#aaa';
       const activeTag = t.active
         ? '<span style="color:#4ecca3;font-size:11px;margin-left:6px;">[生效中]</span>'
         : `<span onclick="onActivateTalent(${t.id})" style="color:#f9c74f;font-size:11px;margin-left:6px;cursor:pointer;">[激活]</span>`;
       return `
         <div class="talent-item" style="border-color:${color}; ${t.active ? 'background:#1a3a3a;' : ''}">
           <div class="talent-name" style="color:${color}">
-            [${t.quality}] ${t.name} ${t.stacks > 1 ? '×' + t.stacks : ''}
+            [${t.quality || '?'}] ${t.name || '未知'} ${t.stacks > 1 ? '×' + t.stacks : ''}
             ${activeTag}
           </div>
-          <div class="talent-desc">${t.desc}</div>
+          <div class="talent-desc">${t.desc || ''}</div>
         </div>
       `;
     }).join('');
@@ -165,6 +211,7 @@ const UI = {
     document.getElementById('mHpBar').style.width = Math.max(0, monster.hp / monster.maxHp * 100) + '%';
     document.getElementById('mAtk').textContent = monster.atk;
   },
+
   renderShop(items) {
     const el = document.getElementById('shopList');
     if (!el) return;
@@ -179,8 +226,49 @@ const UI = {
       </div>
     `).join('');
   },
+
+  renderAchievements(list) {
+    const el = document.getElementById('achievementList');
+    if (!el) return;
+    el.innerHTML = list.map(a => {
+      const status = a.claimed
+        ? '<span style="color:#666;">已领取</span>'
+        : a.achieved
+          ? `<span onclick="onClaimAchievement('${a.key}')" style="cursor:pointer;color:#4ecca3;">[领取]</span>`
+          : '<span style="color:#888;">未达成</span>';
+      let rewardStr = '';
+      if (a.reward.gold) rewardStr += `💰${a.reward.gold} `;
+      if (a.reward.soul) rewardStr += `💀${a.reward.soul}`;
+      return `
+        <div class="ach-item" style="opacity:${a.claimed ? 0.5 : 1}">
+          <div class="ach-name">${a.name}</div>
+          <div class="ach-desc">${a.desc}</div>
+          <div class="ach-footer">${status} · 奖励 ${rewardStr}</div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  renderDailies(list) {
+    const el = document.getElementById('dailyList');
+    if (!el) return;
+    el.innerHTML = list.map(d => {
+      const status = d.claimed
+        ? '<span style="color:#666;">已领取</span>'
+        : d.achieved
+          ? `<span onclick="onClaimDaily('${d.key}')" style="cursor:pointer;color:#4ecca3;">[领取]</span>`
+          : `<span style="color:#888;">${d.progress}/${d.target}</span>`;
+      return `
+        <div class="daily-item" style="opacity:${d.claimed ? 0.5 : 1}">
+          <div class="daily-name">${d.name}</div>
+          <div class="daily-footer">${status} · 奖励 💰${d.reward.gold}</div>
+        </div>
+      `;
+    }).join('');
+  }
 };
 
+// ============ 全局回调 ============
 function onEquip(id)      { Equipment.equip(window.state, id); }
 function onUnequip(id)    { Equipment.unequip(window.state, id); }
 function onDiscard(id)    { Equipment.discard(window.state, id); }
@@ -189,3 +277,6 @@ function onEnhance(id)    { Equipment.enhance(window.state, id); }
 function onDrawTalent()   { Talent.draw(window.state); }
 function onAllocate(stat) { Talent.allocate(window.state, stat); }
 function onActivateTalent(id) { Talent.activate(window.state, id); }
+function onClaimAchievement(key) { Achievement.claim(window.state, key); }
+function onClaimDaily(key) { Daily.claim(window.state, key); }
+function onBuyItem(key)   { Shop.buy(window.state, key); }

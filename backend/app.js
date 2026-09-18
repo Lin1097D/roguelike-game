@@ -11,6 +11,9 @@ const equipmentApiRouter = require('./modules/equipment_api');
 const talentRouter = require('./modules/talent');
 const shopRouter = require('./modules/shop');
 const announcementRouter = require('./modules/announcement');
+const achievementRouter = require('./modules/achievement');
+const dailyRouter = require('./modules/daily');
+const rebirthRouter = require('./modules/rebirth');
 
 const app = express();
 app.use(cors());
@@ -23,8 +26,12 @@ app.use('/api/equipment', equipmentApiRouter);
 app.use('/api/talent', talentRouter);
 app.use('/api/shop', shopRouter);
 app.use('/api/announcement', announcementRouter);
+app.use('/api/achievement', achievementRouter);
+app.use('/api/daily', dailyRouter);
+app.use('/api/rebirth', rebirthRouter);
 
-const PORT = process.env.PORT || 8080;
+//const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });

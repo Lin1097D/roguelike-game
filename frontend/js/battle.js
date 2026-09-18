@@ -41,46 +41,38 @@ const Battle = {
     if (type === 'boss') UI.log('💀 BOSS出现：' + this.currentMonster.name, 'boss');
   },
 
-  // ============ 伤害计算（含天赋） ============
   calcDamage(atk, critRate, jieli, talents, currentHp, maxHp) {
     jieli = jieli || 0;
     talents = talents || [];
     maxHp = maxHp || 1;
 
-    // 1. 劫力倍率（对数）
     let jieliMult = 1 + Math.log2(jieli + 1);
 
-    // 2. 劫力共鸣：劫力效果 ×1.5
     const jieliReso = talents.find(t => t.key === 's_jieli' && t.active);
     if (jieliReso) {
       jieliMult *= (1 + 0.5 * (jieliReso.stacks || 1));
     }
 
-    // 3. 混沌之源：每 100 层劫力 +100%（可叠加）
     const chaos = talents.find(t => t.key === 'sss_chaos' && t.active);
     if (chaos) {
       jieliMult += Math.floor(jieli / 100) * 1.0 * (chaos.stacks || 1);
     }
 
-    // 4. 狂战：血量 < 50% 时攻击 +30%
     let atkBonus = 1;
     const rage = talents.find(t => t.key === 'a_rage' && t.active);
     if (rage && currentHp / maxHp < 0.5) {
       atkBonus += 0.3 * (rage.stacks || 1);
     }
 
-    // 5. 万象更新：每 10 层劫力 +1% 暴击
     let extraCrit = 0;
     const jieliCrit = talents.find(t => t.key === 'ss_jieli' && t.active);
     if (jieliCrit) {
       extraCrit = Math.floor(jieli / 10) * 0.01 * (jieliCrit.stacks || 1);
     }
 
-    // 6. 暴击判定
     const totalCrit = critRate + extraCrit;
     const isCrit = Math.random() < totalCrit;
 
-    // 7. 最终伤害
     let dmg = Math.floor(atk * jieliMult * atkBonus);
     if (isCrit) dmg = Math.floor(dmg * 2);
 
@@ -91,7 +83,7 @@ const Battle = {
     const m = this.currentMonster;
     if (!m || m.hp <= 0) return;
 
-    // 自动治疗：血量低于 60%
+    // 自动治疗
     const hpPercent = state.save.hp / state.save.max_hp;
     const healSkill = CONFIG.skills.heal;
     if (hpPercent < 0.6 && state.save.mp >= healSkill.cost) {
@@ -106,7 +98,7 @@ const Battle = {
       }
     }
 
-    // ============ 玩家攻击 ============
+    // 玩家攻击
     let playerAtk = state.save.atk;
     if (this.rageTurns > 0) playerAtk = Math.floor(playerAtk * 1.5);
 
@@ -121,12 +113,16 @@ const Battle = {
     m.hp -= dmg;
     UI.log(`你造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
 
-    // 嗜血：天赋 + 词条
+    // 音效 + 伤害数字
+    Sound.play('attack');
+    showDamageNumber(dmg, isCrit);
+
+    // 嗜血
     const drainTalent = (state.talents || []).find(t => t.key === 'b_drain' && t.active);
     const talentDrain = drainTalent ? 0.05 * (drainTalent.stacks || 1) : 0;
     const equipDrain = state.save.drain || 0;
     const totalDrain = talentDrain + equipDrain;
-    
+
     if (totalDrain > 0 && dmg > 0) {
       const healAmt = Math.floor(dmg * totalDrain);
       if (healAmt > 0) {
@@ -139,7 +135,7 @@ const Battle = {
       }
     }
 
-    // 连击：10% 概率再攻击一次
+    // 连击
     const doubleTalent = (state.talents || []).find(t => t.key === 'a_double' && t.active);
     if (doubleTalent && m.hp > 0) {
       const chance = 0.1 * (doubleTalent.stacks || 1);
@@ -150,10 +146,10 @@ const Battle = {
         );
         m.hp -= second.dmg;
         UI.log(`⚡ 连击！额外造成 ${second.dmg} 点伤害${second.isCrit ? ' (暴击!)' : ''}`, 'good');
+        showDamageNumber(second.dmg, second.isCrit);
       }
     }
 
-    // 击杀判定
     if (m.hp <= 0) {
       m.hp = 0;
       UI.renderMonster(m);
@@ -162,7 +158,7 @@ const Battle = {
     }
     UI.renderMonster(m);
 
-    // ============ 怪物反击 ============
+    // 怪物反击
     const isDodge = Math.random() < state.save.dodge_rate;
     if (isDodge) {
       UI.log(`你闪避了 ${m.name} 的攻击`, 'good');
@@ -183,7 +179,6 @@ const Battle = {
     }
     if (this.rageTurns > 0) this.rageTurns--;
 
-    // 回合回复
     const tick = await API.tick(state.userId);
     if (tick.code === 0) {
       state.save.mp = tick.data.mp;
@@ -195,17 +190,25 @@ const Battle = {
   async onKill(state) {
     const m = this.currentMonster;
     UI.log(`击杀 ${m.name}！`, m.type === 'normal' ? 'good' : m.type);
+    Sound.play('kill');
+
     const r = await API.kill(state.userId, m.type);
     if (r.code === 0) {
       state.save = { ...state.save, ...r.data };
       const sr = await API.getSave(state.userId);
       if (sr.code === 0) state.save = sr.data;
       UI.renderPlayer(state.save);
-	  if (r.levelUp) {
-	    UI.log(`🎉 升级！等级 ${r.levelUp.newLevel}，获得 ${r.levelUp.freePointsGain} 自由属性点`, 'drop');
-	  }
+
+      if (r.levelUp) {
+        UI.log(`🎉 升级！等级 ${r.levelUp.newLevel}，获得 ${r.levelUp.freePointsGain} 自由属性点`, 'drop');
+        Sound.play('levelup');
+        const app = document.querySelector('.app');
+        app.classList.add('level-up');
+        setTimeout(() => app.classList.remove('level-up'), 1000);
+      }
 
       if (r.drop) {
+        Sound.play('drop');
         Equipment.showDrop(r.drop);
         if (r.drop.replaced) {
           UI.log(`🗑️ 背包已满，自动丢弃较差的【${r.drop.replaced}】`, 'normal');
@@ -280,6 +283,8 @@ const Battle = {
       );
       this.currentMonster.hp -= dmg;
       UI.log(`💥 重击造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
+      showDamageNumber(dmg, isCrit);
+      Sound.play('attack');
       if (this.currentMonster.hp <= 0) {
         this.currentMonster.hp = 0;
         UI.renderMonster(this.currentMonster);
@@ -300,6 +305,8 @@ const Battle = {
       const hr = await API.heal(state.userId, healAmt, 0);
       if (hr.code === 0) state.save = { ...state.save, ...hr.data };
       UI.log(`🩸 吸血造成 ${dmg} 伤害，回复 ${healAmt} 血量`, 'good');
+      showDamageNumber(dmg, false);
+      Sound.play('attack');
       if (this.currentMonster.hp <= 0) {
         this.currentMonster.hp = 0;
         UI.renderMonster(this.currentMonster);

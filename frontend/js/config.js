@@ -1,5 +1,14 @@
 const CONFIG = {
+  //API_BASE: 'http://localhost:3000/api',
   API_BASE: 'http://115.29.177.219/api',
+
+  sounds: {
+    attack: 'sounds/attack.mp3',
+    kill: 'sounds/kill.mp3',
+    levelup: 'sounds/levelup.mp3',
+    drop: 'sounds/drop.mp3'
+  },
+  soundEnabled: true,
 
   skills: {
     heavy: { cost: 8, mult: 2.0, name: '重击' },
@@ -26,6 +35,16 @@ const CONFIG = {
     artifact2: '神器·下'
   },
 
+  talentQualityColors: {
+    D: '#888',
+    C: '#aaa',
+    B: '#4ecca3',
+    A: '#4a9eff',
+    S: '#b44aff',
+    SS: '#ff9500',
+    SSS: '#ff0044'
+  },
+
   monsterNames: {
     normal: ['史莱姆', '哥布林', '野狼', '骷髅兵', '蝙蝠'],
     elite: ['精英史莱姆', '精英哥布林', '精英狼王', '骷髅队长', '血蝠'],
@@ -41,6 +60,5 @@ const CONFIG = {
 
   spawn: { eliteEvery: 10, bossEvery: 50 },
 
-  // 战斗速度（1 / 2 / 4）
   battleSpeed: 1
 };

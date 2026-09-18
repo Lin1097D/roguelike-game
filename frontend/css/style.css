@@ -568,3 +568,177 @@ h1 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.achievement-list, .daily-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ach-item, .daily-item {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.ach-name, .daily-name {
+  font-weight: bold;
+  color: #d4af37;
+}
+.ach-desc {
+  color: #b8a878;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.ach-footer, .daily-footer {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #f9c74f;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 按钮加大点击区域 */
+.btn, .auth button {
+  padding: 12px 8px;
+  font-size: 15px;
+  min-height: 44px;
+}
+
+.actions .btn {
+  min-height: 48px;
+}
+
+/* 手机小屏适配 */
+@media (max-width: 480px) {
+  body { padding: 4px; }
+  .app { padding: 10px; }
+  h1 { font-size: 20px; }
+  .stat { font-size: 11px; padding: 5px 8px; }
+  .tab { font-size: 12px; padding: 8px 2px; }
+}
+
+/* 防止双击缩放 */
+button, .tab, .btn {
+  touch-action: manipulation;
+}
+
+.damage-float {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff5555;
+  pointer-events: none;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 9999;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9);
+}
+.damage-float.crit {
+  font-size: 36px;
+  color: #ffdd00;
+  text-shadow: 0 0 12px rgba(255, 200, 0, 0.9);
+}
+@keyframes floatUp {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+}
+/*升级闪光*/
+@keyframes levelFlash {
+  0%, 100% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); }
+  50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.8); }
+}
+.app.level-up {
+  animation: levelFlash 1s ease;
+}
+/* 掉落闪光*/
+@keyframes dropFlash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.log .drop {
+  animation: dropFlash 0.5s ease;
+}
+
+/* ============ 移动端适配 ============ */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn, .auth button {
+  padding: 12px 8px;
+  font-size: 15px;
+  min-height: 44px;
+}
+
+.actions .btn {
+  min-height: 48px;
+}
+
+@media (max-width: 480px) {
+  body { padding: 4px; }
+  .app { padding: 10px; }
+  h1 { font-size: 20px; }
+  .stat { font-size: 11px; padding: 5px 8px; }
+  .tab { font-size: 12px; padding: 8px 2px; }
+}
+
+button, .tab, .btn {
+  touch-action: manipulation;
+}
+
+/* ============ 动画 ============ */
+@keyframes floatUp {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+}
+
+.damage-float {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff5555;
+  pointer-events: none;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 9999;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9);
+}
+
+.damage-float.crit {
+  font-size: 36px;
+  color: #ffdd00;
+  text-shadow: 0 0 12px rgba(255, 200, 0, 0.9);
+}
+
+@keyframes levelFlash {
+  0%, 100% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); }
+  50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.8); }
+}
+
+.app.level-up {
+  animation: levelFlash 1s ease;
+}
+
+@keyframes dropFlash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.log .drop {
+  animation: dropFlash 0.5s ease;
+}

@@ -58,8 +58,10 @@ router.post('/draw', async (req, res) => {
 
     if (s.gold < cost) return res.json({ code: 1, msg: '金币不足' });
 
-    await pool.query('UPDATE save SET gold = gold - ?, draw_count = draw_count + 1 WHERE user_id=?',
-      [cost, userId]);
+    await pool.query(
+      'UPDATE save SET gold = gold - ?, draw_count = draw_count + 1, daily_draw = daily_draw + 1 WHERE user_id=?',
+      [cost, userId]
+    );
 
     const quality = rollQuality();
     const talent = rollTalent(quality);

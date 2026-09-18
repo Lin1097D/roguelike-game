@@ -47,7 +47,10 @@ router.post('/enhance', async (req, res) => {
     else if (targetLv <= 24) successRate = 0.3;
     else                     successRate = 0.2;
 
-    await pool.query('UPDATE save SET gold = gold - ? WHERE user_id=?', [cost, userId]);
+    await pool.query(
+      'UPDATE save SET gold = gold - ?, daily_enhance = daily_enhance + 1 WHERE user_id=?',
+      [cost, userId]
+    );
 
     const success = Math.random() < successRate;
 

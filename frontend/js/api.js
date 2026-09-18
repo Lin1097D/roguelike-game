@@ -38,4 +38,15 @@ const API = {
 
   // 公告
   getAnnouncements: () => API.request('/announcement/recent'),
+  
+  // 成就
+  getAchievements: (userId) => API.request('/achievement/' + userId),
+  claimAchievement: (userId, key) => API.request('/achievement/claim', 'POST', { userId, achievementKey: key }),
+  
+  // 每日任务
+  getDailies: (userId) => API.request('/daily/' + userId),
+  claimDaily: (userId, key) => API.request('/daily/claim', 'POST', { userId, dailyKey: key }),
+  
+  // 转生
+  doRebirth: (userId) => API.request('/rebirth/do', 'POST', { userId }),
 };

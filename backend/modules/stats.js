@@ -6,7 +6,6 @@ function calcEquipmentBonus(equipmentList) {
   const setCount = {};
 
   for (const eq of equipmentList) {
-    // 神器
     if (eq.slot === 'artifact1' || eq.slot === 'artifact2') {
       bonus.atk += config.artifact.bonus.atk;
       bonus.max_hp += config.artifact.bonus.max_hp;
@@ -14,7 +13,6 @@ function calcEquipmentBonus(equipmentList) {
       continue;
     }
 
-    // 主属性
     const slotCfg = config.equipmentSlots[eq.slot];
     if (slotCfg) {
       const stat = slotCfg.mainStat;
@@ -23,12 +21,12 @@ function calcEquipmentBonus(equipmentList) {
       bonus[stat] = (bonus[stat] || 0) + value;
     }
 
-    // 词条
     if (eq.affixes) {
       let affixes = [];
       try {
         affixes = typeof eq.affixes === 'string' ? JSON.parse(eq.affixes) : eq.affixes;
       } catch (e) { affixes = []; }
+
       for (const a of affixes) {
         if (a.key === 'atk')      bonus.atk += a.value;
         if (a.key === 'max_hp')   bonus.max_hp += a.value;
@@ -40,13 +38,11 @@ function calcEquipmentBonus(equipmentList) {
       }
     }
 
-    // 统计套装件数
     if (eq.set_name) {
       setCount[eq.set_name] = (setCount[eq.set_name] || 0) + 1;
     }
   }
 
-  // 计算套装效果
   for (const setName in setCount) {
     const count = setCount[setName];
     const setDef = config.setList.find(s => s.name === setName);
@@ -122,18 +118,21 @@ async function recalcAndSave(userId) {
   const eqBonus = calcEquipmentBonus(eqRows);
   const tBonus = calcTalentBonus(talentRows, s);
 
-  const finalAtk = Math.floor(s.base_atk + eqBonus.atk + tBonus.atk);
-  const finalMaxHp = Math.floor(s.base_max_hp + eqBonus.max_hp + tBonus.max_hp);
-  const finalMaxMp = Math.floor(s.base_max_mp + eqBonus.max_mp + tBonus.max_mp);
+  // 转生加成：每点 +1%
+  const rebirthMult = 1 + (s.rebirth_points || 0) * 0.01;
+
+  const finalAtk = Math.floor((s.base_atk + eqBonus.atk + tBonus.atk) * rebirthMult);
+  const finalMaxHp = Math.floor((s.base_max_hp + eqBonus.max_hp + tBonus.max_hp) * rebirthMult);
+  const finalMaxMp = Math.floor((s.base_max_mp + eqBonus.max_mp + tBonus.max_mp) * rebirthMult);
   const finalCrit = Math.round((s.base_crit_rate + eqBonus.crit_rate + tBonus.crit_rate) * 1000) / 1000;
   const finalDodge = Math.round((s.base_dodge_rate + eqBonus.dodge_rate + tBonus.dodge_rate) * 1000) / 1000;
+
+  const finalDrain = Math.round((eqBonus.drain + tBonus.drain) * 1000) / 1000;
+  const finalGoldBonus = Math.round((eqBonus.goldPct + tBonus.goldPct) * 1000) / 1000;
 
   const finalHp = Math.min(s.hp, finalMaxHp);
   const finalMp = Math.min(s.mp, finalMaxMp);
 
-  const finalDrain = Math.round((eqBonus.drain + tBonus.drain) * 1000) / 1000;
-  const finalGoldBonus = Math.round((eqBonus.goldPct + tBonus.goldPct) * 1000) / 1000;
-  
   await pool.query(
     `UPDATE save SET 
       atk=?, max_hp=?, max_mp=?, crit_rate=?, dodge_rate=?,
@@ -144,6 +143,8 @@ async function recalcAndSave(userId) {
      finalDrain, finalGoldBonus,
      finalHp, finalMp, userId]
   );
+// 更新每日任务进度
+await pool.query('UPDATE save SET daily_kill = daily_kill + 1 WHERE user_id=?', [userId]);
 
   const [newRows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
   return newRows[0];

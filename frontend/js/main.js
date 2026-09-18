@@ -72,6 +72,8 @@ function switchTab(tabName) {
   if (tabName === 'bag') Equipment.refresh(state);
   if (tabName === 'talent') Talent.refresh(state);
   if (tabName === 'shop') Shop.refresh(state);
+  if (tabName === 'achievement') Achievement.refresh(state);
+  if (tabName === 'daily') Daily.refresh(state);
 }
 
 // ============ 战斗速度 ============

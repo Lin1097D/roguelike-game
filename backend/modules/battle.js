@@ -26,7 +26,6 @@ router.post('/kill', async (req, res) => {
     const newBoss = s.boss_count + (monsterType === 'boss' ? 1 : 0);
     const newJieli = (s.jieli || 0) + config.jieli.perKill;
 
-    // 金币
     const goldCfg = config.goldGain;
     const goldBase = goldCfg.baseNormal + newKill * goldCfg.perKill;
     let goldGain = Math.floor(goldBase);
@@ -38,7 +37,7 @@ router.post('/kill', async (req, res) => {
       goldGain = Math.floor(goldGain * (1 + goldBonus));
     }
 
-    // ============ 经验结算 ============
+    // 经验结算
     const expGain = config.level.expPerKill[monsterType] || config.level.expPerKill.normal;
     let newExp = (s.exp || 0) + expGain;
     let newLevel = s.level || 1;
@@ -69,6 +68,8 @@ router.post('/kill', async (req, res) => {
         kill_count = ?, elite_count = ?, boss_count = ?,
         gold = gold + ?, jieli = ?,
         level = ?, exp = ?, free_points = free_points + ?,
+        daily_kill = daily_kill + 1,
+		last_daily = CURDATE(),
         updated_at = NOW()
        WHERE user_id = ?`,
       [reward.atk, reward.hp, reward.hp, heal.hp,
