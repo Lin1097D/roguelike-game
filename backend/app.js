@@ -30,8 +30,8 @@ app.use('/api/achievement', achievementRouter);
 app.use('/api/daily', dailyRouter);
 app.use('/api/rebirth', rebirthRouter);
 
-//const PORT = process.env.PORT || 8080;
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
+//const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });
