@@ -24,7 +24,7 @@ app.use('/api/talent', talentRouter);
 app.use('/api/shop', shopRouter);
 app.use('/api/announcement', announcementRouter);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });
