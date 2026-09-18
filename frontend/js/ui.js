@@ -164,7 +164,21 @@ const UI = {
     document.getElementById('mHpText').textContent = Math.max(0, monster.hp) + '/' + monster.maxHp;
     document.getElementById('mHpBar').style.width = Math.max(0, monster.hp / monster.maxHp * 100) + '%';
     document.getElementById('mAtk').textContent = monster.atk;
-  }
+  },
+  renderShop(items) {
+    const el = document.getElementById('shopList');
+    if (!el) return;
+    el.innerHTML = items.map(item => `
+      <div class="shop-item">
+        <div class="shop-name">${item.name}</div>
+        <div class="shop-desc">${item.desc}</div>
+        <div class="shop-footer">
+          <span class="shop-price">💰 ${item.price}</span>
+          <span onclick="onBuyItem('${item.key}')" style="cursor:pointer;color:#d4af37;">购买</span>
+        </div>
+      </div>
+    `).join('');
+  },
 };
 
 function onEquip(id)      { Equipment.equip(window.state, id); }

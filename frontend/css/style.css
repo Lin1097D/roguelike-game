@@ -523,3 +523,48 @@ h1 {
 ::-webkit-scrollbar-thumb:hover {
   background: #d4af37;
 }
+
+/* 商店 */
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.shop-item {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+.shop-name {
+  font-weight: bold;
+  color: #d4af37;
+  margin-bottom: 2px;
+}
+.shop-desc {
+  color: #b8a878;
+  font-size: 12px;
+}
+.shop-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 13px;
+}
+.shop-price {
+  color: #f9c74f;
+}
+
+/* 公告栏 */
+.announcement-bar {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid #d4af37;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: #d4af37;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

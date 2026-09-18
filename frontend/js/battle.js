@@ -238,11 +238,12 @@ const Battle = {
   startAuto(state) {
     if (this.autoTimer) { this.stopAuto(); return; }
     document.getElementById('btnAuto').textContent = '停止战斗';
+    const interval = 500 / (window.battleSpeed || 1);
     this.autoTimer = setInterval(() => {
       if (state.save && state.save.hp > 0 && this.currentMonster && this.currentMonster.hp > 0) {
         this.attackOnce(state);
       }
-    }, 500);
+    }, interval);
   },
 
   stopAuto() {

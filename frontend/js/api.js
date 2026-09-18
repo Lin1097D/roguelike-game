@@ -31,4 +31,11 @@ const API = {
   drawTalent:   (userId) => API.request('/talent/draw', 'POST', { userId }),
   activateTalent: (userId, talentId) => API.request('/talent/activate', 'POST', { userId, talentId }),
   allocatePoint: (userId, stat, amount) => API.request('/talent/allocate', 'POST', { userId, stat, amount }),
+
+  // 商店
+  getShopItems: (userId) => API.request('/shop/' + userId),
+  buyItem:      (userId, itemKey) => API.request('/shop/buy', 'POST', { userId, itemKey }),
+
+  // 公告
+  getAnnouncements: () => API.request('/announcement/recent'),
 };

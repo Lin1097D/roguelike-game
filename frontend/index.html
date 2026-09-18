@@ -10,19 +10,17 @@
 <div class="app">
   <h1>⚔️ 肉鸽杀怪</h1>
 
-  <!-- 登录注册 -->
+  <div id="announcementBar" class="announcement-bar hidden"></div>
+
   <div id="authPanel" class="auth">
     <input id="username" placeholder="用户名" />
     <input id="password" type="password" placeholder="密码" />
     <button onclick="doRegister()">注册</button>
     <button onclick="doLogin()">登录</button>
-    <div id="authMsg" class="center" style="color:#a02828;font-size:13px;"></div>
+    <div id="authMsg" class="center" style="color:#ff5773;font-size:13px;"></div>
   </div>
 
-  <!-- 游戏主界面 -->
   <div id="gamePanel" class="hidden">
-
-    <!-- 属性栏 -->
     <div class="stats">
       <div class="stat">攻击力: <span id="sAtk">1</span></div>
       <div class="stat">击杀: <span id="sKill">0</span></div>
@@ -34,29 +32,24 @@
       <div class="stat">金币加成: <span id="sGoldBonus">0%</span></div>
     </div>
 
-    <!-- 等级 + 经验条 -->
     <div class="title-sm">等级 <span id="lvText">Lv.1</span> · 经验 <span id="expText">0/100</span></div>
     <div class="bar exp-bar"><div id="expBar" style="width:0%"></div></div>
 
-    <!-- 血条 -->
     <div class="title-sm">血量 <span id="hpText">100/100</span></div>
     <div class="bar hp-bar"><div id="hpBar" style="width:100%"></div></div>
 
-    <!-- 蓝条 -->
     <div class="title-sm">精神力 <span id="mpText">50/50</span></div>
     <div class="bar mp-bar"><div id="mpBar" style="width:100%"></div></div>
 
-    <!-- 标签栏 -->
     <div class="tabs">
       <div class="tab active" data-tab="battle" onclick="switchTab('battle')">⚔️ 战斗</div>
       <div class="tab" data-tab="bag" onclick="switchTab('bag')">🎒 背包</div>
       <div class="tab" data-tab="talent" onclick="switchTab('talent')">✨ 天赋</div>
+      <div class="tab" data-tab="shop" onclick="switchTab('shop')">🛒 商店</div>
     </div>
 
-    <!-- 标签内容区 -->
     <div class="tab-content">
-
-      <!-- 战斗标签 -->
+      <!-- 战斗 -->
       <div class="tab-pane active" id="tab-battle">
         <div id="monsterBox" class="monster normal">
           <div class="name" id="mName">史莱姆</div>
@@ -75,11 +68,14 @@
           <button class="btn" onclick="useSkill('rage')">狂暴(15)</button>
           <button class="btn" onclick="logout()">退出</button>
         </div>
+
+        <div style="text-align:center;margin-top:8px;">
+          <button class="btn" onclick="toggleSpeed()" id="btnSpeed" style="padding:4px 12px;font-size:12px;">速度 x1</button>
+        </div>
       </div>
 
-      <!-- 背包标签 -->
+      <!-- 背包 -->
       <div class="tab-pane" id="tab-bag">
-        <!-- 装备栏 -->
         <div class="equipment-panel">
           <div class="equipment-title">
             🗡️ 装备栏
@@ -95,14 +91,13 @@
           </div>
         </div>
 
-        <!-- 背包 -->
         <div class="bag-panel">
           <div class="equipment-title">🎒 背包（每槽位最多 10 件）</div>
           <div class="bag-list" id="bagList"></div>
         </div>
       </div>
 
-      <!-- 天赋标签 -->
+      <!-- 天赋 -->
       <div class="tab-pane" id="tab-talent">
         <div class="talent-panel">
           <div class="equipment-title">
@@ -113,6 +108,11 @@
         </div>
       </div>
 
+      <!-- 商店 -->
+      <div class="tab-pane" id="tab-shop">
+        <div class="equipment-title">🛒 商店</div>
+        <div id="shopList" class="shop-list"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -122,6 +122,7 @@
 <script src="js/ui.js"></script>
 <script src="js/equipment.js"></script>
 <script src="js/talent.js"></script>
+<script src="js/shop.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/main.js"></script>
 </body>

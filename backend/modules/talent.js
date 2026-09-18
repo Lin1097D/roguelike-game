@@ -20,7 +20,7 @@ function rollTalent(quality) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// 查询玩家天赋（含 effect 字段，供前端战斗计算用）
+// 查询玩家天赋
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
@@ -93,6 +93,19 @@ router.post('/draw', async (req, res) => {
         desc: talent.desc,
         autoActivated: shouldActivate === 1
       };
+    }
+
+    // ============ 抽到 SS / SSS 时发公告 ============
+    if (quality === 'SSS' || quality === 'SS') {
+      try {
+        const [userRows] = await pool.query('SELECT username FROM user WHERE id=?', [userId]);
+        const username = userRows.length > 0 ? userRows[0].username : '神秘玩家';
+        const msg = `🌟 恭喜玩家【${username}】抽到了 ${quality} 级天赋【${talent.name}】！`;
+        await pool.query('INSERT INTO announcement (message) VALUES (?)', [msg]);
+      } catch (e) {
+        // 公告发失败不影响抽卡
+        console.log('[公告] 发送失败:', e.message);
+      }
     }
 
     await stats.recalcAndSave(userId);
