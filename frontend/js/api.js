@@ -52,4 +52,9 @@ const API = {
   // 签到
   getSigninStatus: (userId) => API.request('/signin/' + userId),
   doSignin: (userId) => API.request('/signin/do', 'POST', { userId }),
+  
+  // 排行榜
+  getRankLevel: () => API.request('/rank/level'),
+  getRankAtk: () => API.request('/rank/atk'),
+  getRankKill: () => API.request('/rank/kill'),
 };

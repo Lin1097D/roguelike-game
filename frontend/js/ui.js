@@ -299,6 +299,45 @@ const UI = {
       }
     }
   },
+  renderRank(list, tab, mySave) {
+    const el = document.getElementById('rankList');
+    if (!el) return;
+  
+    // 榜单标题
+    const tabs = document.getElementById('rankTabs');
+    if (tabs) {
+      tabs.innerHTML = `
+        <div class="rank-tab ${tab === 'level' ? 'active' : ''}" onclick="onRankTab('level')">等级榜</div>
+        <div class="rank-tab ${tab === 'atk' ? 'active' : ''}" onclick="onRankTab('atk')">攻击榜</div>
+        <div class="rank-tab ${tab === 'kill' ? 'active' : ''}" onclick="onRankTab('kill')">击杀榜</div>
+      `;
+    }
+  
+    if (!list || list.length === 0) {
+      el.innerHTML = '<div style="color:#666;text-align:center;padding:20px;">暂无数据</div>';
+      return;
+    }
+  
+    el.innerHTML = list.map((item, index) => {
+      let value = '';
+      if (tab === 'level') value = `Lv.${item.level}`;
+      else if (tab === 'atk') value = `攻击 ${item.atk}`;
+      else if (tab === 'kill') value = `击杀 ${item.kill_count}`;
+  
+      let rankColor = '#b8a878';
+      if (index === 0) rankColor = '#ffdd00';
+      else if (index === 1) rankColor = '#c0c0c0';
+      else if (index === 2) rankColor = '#cd7f32';
+  
+      return `
+        <div class="rank-item">
+          <div class="rank-num" style="color:${rankColor}">${index + 1}</div>
+          <div class="rank-name">${item.username}</div>
+          <div class="rank-value">${value}</div>
+        </div>
+      `;
+    }).join('');
+  },
 };
 
 // ============ 全局回调 ============

@@ -784,3 +784,68 @@ button, .tab, .btn {
   font-size: 11px;
   line-height: 1.4;
 }
+
+/* 排行榜 */
+.rank-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.rank-tab {
+  flex: 1;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #8a7a4a;
+  cursor: pointer;
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  background: rgba(10, 8, 6, 0.5);
+  transition: 0.2s;
+}
+.rank-tab:hover {
+  color: #d4af37;
+  border-color: #5a4a20;
+}
+.rank-tab.active {
+  color: #d4af37;
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.rank-item {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.rank-num {
+  width: 36px;
+  font-weight: bold;
+  font-size: 15px;
+  text-align: center;
+}
+.rank-name {
+  flex: 1;
+  color: #e8dcc0;
+  padding-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rank-value {
+  color: #d4af37;
+  font-weight: bold;
+  font-size: 12px;
+}

@@ -49,6 +49,7 @@
 	  <div class="tab" data-tab="achievement" onclick="switchTab('achievement')">🏆 成就</div>
 	  <div class="tab" data-tab="daily" onclick="switchTab('daily')">📅 每日</div>
 	  <div class="tab" data-tab="signin" onclick="switchTab('signin')">📆 签到</div>
+	  <div class="tab" data-tab="rank" onclick="switchTab('rank')">🏆 排行</div>
     </div>
 
     <div class="tab-content">
@@ -137,6 +138,12 @@
 	      <button class="btn" onclick="onSignin()" id="btnSignin" style="padding:8px 24px;">签到</button>
 	    </div>
 	  </div>
+	  <!-- 排行榜 -->
+	  <div class="tab-pane" id="tab-rank">
+	    <div class="equipment-title">🏆 排行榜</div>
+	    <div id="rankTabs" class="rank-tabs"></div>
+	    <div id="rankList" class="rank-list"></div>
+	  </div>
     </div>
   </div>
 </div>
@@ -152,5 +159,6 @@
 <script src="js/achievement.js"></script>
 <script src="js/daily.js"></script>
 <script src="js/signin.js"></script>
+<script src="js/rank.js"></script>
 </body>
 </html>
