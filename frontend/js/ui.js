@@ -448,6 +448,7 @@ const UI = {
   },
 };
 
+
 function onEquip(id)      { Equipment.equip(window.state, id); }
 function onUnequip(id)    { Equipment.unequip(window.state, id); }
 function onDiscard(id)    { Equipment.discard(window.state, id); }
