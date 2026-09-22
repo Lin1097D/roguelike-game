@@ -463,3 +463,5 @@ function onClaimDaily(key) { Daily.claim(window.state, key); }
 function onBuyItem(key)   { Shop.buy(window.state, key); }
 function onSignin()       { Signin.do(window.state); }
 function onRankTab(tab)   { Rank.switchTab(window.state, tab); }
+function onBossStart(key) { Boss.start(window.state, key); }
+function onBossAuto()     { Boss.autoFight(window.state); }
