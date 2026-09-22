@@ -48,6 +48,7 @@
       <div class="tab" data-tab="shop" onclick="switchTab('shop')">🛒 商店</div>
 	  <div class="tab" data-tab="achievement" onclick="switchTab('achievement')">🏆 成就</div>
 	  <div class="tab" data-tab="daily" onclick="switchTab('daily')">📅 每日</div>
+	  <div class="tab" data-tab="signin" onclick="switchTab('signin')">📆 签到</div>
     </div>
 
     <div class="tab-content">
@@ -128,6 +129,14 @@
 	      <button class="btn" onclick="onRebirth()" style="padding:8px 16px;">🔄 转生（需 100 级）</button>
 	    </div>
 	  </div>
+	  <!-- 每日签到 -->
+	  <div class="tab-pane" id="tab-signin">
+	    <div class="equipment-title">📆 每日签到</div>
+	    <div id="signinList" class="signin-list"></div>
+	    <div style="text-align:center;margin-top:12px;">
+	      <button class="btn" onclick="onSignin()" id="btnSignin" style="padding:8px 24px;">签到</button>
+	    </div>
+	  </div>
     </div>
   </div>
 </div>
@@ -142,5 +151,6 @@
 <script src="js/main.js"></script>
 <script src="js/achievement.js"></script>
 <script src="js/daily.js"></script>
+<script src="js/signin.js"></script>
 </body>
 </html>

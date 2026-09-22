@@ -265,7 +265,40 @@ const UI = {
         </div>
       `;
     }).join('');
-  }
+  },
+  renderSignin(streak, signedToday, rewards) {
+    const el = document.getElementById('signinList');
+    if (!el) return;
+    el.innerHTML = rewards.map(r => {
+      const isSigned = r.day <= streak;
+      const isToday = r.day === streak && signedToday;
+      const isNext = r.day === streak + 1 && !signedToday;
+      let cls = 'signin-day';
+      if (isSigned) cls += ' signed';
+      if (isNext) cls += ' next';
+      let rewardStr = `💰${r.gold}`;
+      if (r.soul) rewardStr += `<br>💀${r.soul}`;
+      if (r.free_points) rewardStr += `<br>⭐${r.free_points}`;
+      return `
+        <div class="${cls}">
+          <div class="signin-day-num">第${r.day}天</div>
+          <div class="signin-reward">${rewardStr}</div>
+        </div>
+      `;
+    }).join('');
+  
+    // 按钮状态
+    const btn = document.getElementById('btnSignin');
+    if (btn) {
+      if (signedToday) {
+        btn.textContent = '今日已签';
+        btn.disabled = true;
+      } else {
+        btn.textContent = '签到';
+        btn.disabled = false;
+      }
+    }
+  },
 };
 
 // ============ 全局回调 ============

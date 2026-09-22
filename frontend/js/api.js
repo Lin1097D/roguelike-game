@@ -49,4 +49,7 @@ const API = {
   
   // 转生
   doRebirth: (userId) => API.request('/rebirth/do', 'POST', { userId }),
+  // 签到
+  getSigninStatus: (userId) => API.request('/signin/' + userId),
+  doSignin: (userId) => API.request('/signin/do', 'POST', { userId }),
 };

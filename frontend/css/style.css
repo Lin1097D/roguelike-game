@@ -742,3 +742,45 @@ button, .tab, .btn {
 .log .drop {
   animation: dropFlash 0.5s ease;
 }
+
+/* 签到 */
+.signin-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.signin-day {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 4px;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.6;
+}
+.signin-day.signed {
+  background: rgba(78, 204, 163, 0.15);
+  border-color: #4ecca3;
+  opacity: 1;
+}
+.signin-day.next {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+  opacity: 1;
+  animation: signinPulse 1.5s ease infinite;
+}
+@keyframes signinPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); }
+  50% { box-shadow: 0 0 12px rgba(212, 175, 55, 0.6); }
+}
+.signin-day-num {
+  color: #d4af37;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.signin-reward {
+  color: #b8a878;
+  font-size: 11px;
+  line-height: 1.4;
+}
