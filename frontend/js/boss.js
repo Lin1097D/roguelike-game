@@ -20,26 +20,28 @@ const Boss = {
       if (!confirm(msg)) return;
       useGold = true;
     }
-
+  
     const r = await API.startBossChallenge(state.userId, bossKey, useGold);
     if (r.code !== 0) {
       UI.log('挑战失败：' + r.msg, 'bad');
       return;
     }
-
+  
     // 进入挑战
     this.currentBoss = r.boss;
     this.currentBossHp = r.boss.hp;
     this.currentBossMaxHp = r.boss.hp;
-
+  
+    // 切换到 BOSS 标签
+    switchTab('boss');
+  
     UI.renderBossBattle(r.boss, this.currentBossHp, this.currentBossMaxHp);
     UI.log(`⚔️ 开始挑战【${r.boss.name}】！`, 'boss');
-
+  
     if (r.useExtra) {
       UI.log(`花费 ${r.extraCost} 金币`, 'normal');
     }
-
-    // 刷新次数
+  
     await Boss.refresh(state);
   },
 
