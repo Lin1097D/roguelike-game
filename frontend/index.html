@@ -52,6 +52,7 @@
       <div class="tab" data-tab="rank" onclick="switchTab('rank')">🏅 排行</div>
       <div class="tab" data-tab="stats" onclick="switchTab('stats')">📊 统计</div>
       <div class="tab" data-tab="monster" onclick="switchTab('monster')">📖 图鉴</div>
+	  <div class="tab" data-tab="boss" onclick="switchTab('boss')">👹 BOSS</div>
     </div>
 
     <div class="tab-content">
@@ -152,6 +153,12 @@
         <div class="equipment-title">📖 怪物图鉴</div>
         <div id="monsterList" class="monster-list"></div>
       </div>
+	  
+	  <div class="tab-pane" id="tab-boss">
+	    <div class="equipment-title">👹 BOSS 挑战</div>
+	    <div id="bossHeader"></div>
+	    <div id="bossList" class="boss-list"></div>
+	  </div>
     </div>
   </div>
 </div>
@@ -170,5 +177,6 @@
 <script src="js/monster.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/main.js"></script>
+<script src="js/boss.js"></script>
 </body>
 </html>

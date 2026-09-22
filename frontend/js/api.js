@@ -65,4 +65,9 @@ const API = {
   
   // 怪物图鉴
   getMonsterLog: (userId) => API.request('/monster/' + userId),
+  
+  // BOSS 挑战
+  getBossList: (userId) => API.request('/boss/' + userId),
+  startBossChallenge: (userId, bossKey, useGold) => API.request('/boss/start', 'POST', { userId, bossKey, useGold }),
+  finishBossChallenge: (userId, bossKey, win) => API.request('/boss/finish', 'POST', { userId, bossKey, win }),
 };

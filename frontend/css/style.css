@@ -929,3 +929,63 @@ button, .tab, .btn {
   font-weight: bold;
   cursor: pointer;
 }
+
+/* BOSS 挑战 */
+.boss-header {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid #5a4a20;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.boss-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.boss-item {
+  background: linear-gradient(180deg, #1a1410 0%, #0a0806 100%);
+  border: 1px solid #5a3a1a;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.boss-name {
+  color: #e91e63;
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-shadow: 0 0 8px rgba(233, 30, 99, 0.5);
+}
+.boss-info {
+  color: #b8a878;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.boss-reward {
+  color: #d4af37;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.boss-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+}
+.boss-battle {
+  background: linear-gradient(180deg, #2a0f1a 0%, #0a0506 100%);
+  border: 2px solid #e91e63;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 0 20px rgba(233, 30, 99, 0.3);
+}
+.boss-battle-name {
+  text-align: center;
+  color: #e91e63;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(233, 30, 99, 0.8);
+}

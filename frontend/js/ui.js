@@ -398,7 +398,54 @@ const UI = {
       </div>
     `;
     document.body.appendChild(modal);
-  }
+  },
+  renderBossList(bosses, remaining, dailyFree, extraCost) {
+    const el = document.getElementById('bossList');
+    if (!el) return;
+  
+    // 次数显示
+    const header = document.getElementById('bossHeader');
+    if (header) {
+      header.innerHTML = `
+        <div class="boss-header">
+          <span>今日免费次数：<b style="color:#d4af37">${remaining}/${dailyFree}</b></span>
+          <span style="font-size:12px;color:#b8a878;">额外挑战：${extraCost} 金币/次</span>
+        </div>
+      `;
+    }
+  
+    el.innerHTML = bosses.map(b => `
+      <div class="boss-item">
+        <div class="boss-name">${b.name}</div>
+        <div class="boss-info">HP ${b.hp} · 攻击 ${b.atk}</div>
+        <div class="boss-reward">
+          奖励：💰${b.reward.gold}
+          ${b.reward.soul ? ` 💀${b.reward.soul}` : ''}
+          ${b.reward.points ? ` ⭐${b.reward.points}` : ''}
+        </div>
+        <button class="btn boss-btn" onclick="onBossStart('${b.key}')">挑战</button>
+      </div>
+    `).join('');
+  },
+  
+  renderBossBattle(boss, hp, maxHp) {
+    const el = document.getElementById('bossList');
+    if (!el) return;
+    const pct = Math.max(0, hp / maxHp * 100);
+    el.innerHTML = `
+      <div class="boss-battle">
+        <div class="boss-battle-name">⚔️ ${boss.name}</div>
+        <div class="title-sm">血量 ${Math.max(0, hp)}/${maxHp}</div>
+        <div class="bar hp-bar" style="height:20px;">
+          <div style="width:${pct}%;background:linear-gradient(180deg,#e91e63,#8a0a30);box-shadow:0 0 8px rgba(233,30,99,0.6);"></div>
+        </div>
+        <div class="title-sm">攻击 ${boss.atk}</div>
+        <div style="text-align:center;margin-top:10px;">
+          <button class="btn" onclick="onBossAuto()" id="btnBossAuto" style="padding:6px 16px;">自动挑战</button>
+        </div>
+      </div>
+    `;
+  },
 };
 
 function onEquip(id)      { Equipment.equip(window.state, id); }

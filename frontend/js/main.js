@@ -97,6 +97,7 @@ function switchTab(tabName) {
   if (tabName === 'rank') Rank.refresh(state);
   if (tabName === 'stats') Stats.refresh(state);
   if (tabName === 'monster') Monster.refresh(state);
+  if (tabName === 'boss') Boss.refresh(state);
 }
 
 // ============ 战斗速度 ============
