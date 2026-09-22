@@ -2,8 +2,66 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const stats = require('./stats');
+const equipmentUtil = require('./equipment');
 
 // ============ 具体路由放前面，通配路由放后面 ============
+
+// 洗练装备词条
+router.post('/reroll', async (req, res) => {
+  const { userId, equipmentId } = req.body;
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM equipment WHERE id=? AND user_id=?',
+      [equipmentId, userId]
+    );
+    if (rows.length === 0) return res.json({ code: 1, msg: '装备不存在' });
+    const eq = rows[0];
+
+    if (eq.slot === 'artifact1' || eq.slot === 'artifact2') {
+      return res.json({ code: 1, msg: '神器无法洗练' });
+    }
+
+    const qualityMult = { common: 1, fine: 1.5, rare: 2, epic: 3, legendary: 5 };
+    const cost = Math.floor(1000 * (qualityMult[eq.quality] || 1) * ((eq.enhance_level || 0) + 1));
+
+    const [saveRows] = await pool.query('SELECT gold FROM save WHERE user_id=?', [userId]);
+    if (saveRows[0].gold < cost) {
+      return res.json({ code: 1, msg: `金币不足，需要 ${cost} 金币` });
+    }
+
+    await pool.query('UPDATE save SET gold = gold - ? WHERE user_id=?', [cost, userId]);
+
+    const newAffixes = equipmentUtil.generateAffixes(eq.quality, 100);
+
+    await pool.query(
+      'UPDATE equipment SET affixes=? WHERE id=?',
+      [JSON.stringify(newAffixes), equipmentId]
+    );
+
+    const newSave = await stats.recalcAndSave(userId);
+
+    const [newEqRows] = await pool.query('SELECT * FROM equipment WHERE id=?', [equipmentId]);
+    const newEq = newEqRows[0];
+
+    res.json({
+      code: 0,
+      success: true,
+      cost,
+      equipment: {
+        id: newEq.id,
+        slot: newEq.slot,
+        name: newEq.name,
+        quality: newEq.quality,
+        statValue: newEq.stat_value,
+        enhanceLevel: newEq.enhance_level,
+        affixes: newAffixes
+      },
+      save: newSave
+    });
+  } catch (e) {
+    res.json({ code: 1, msg: e.message });
+  }
+});
 
 // 强化装备
 router.post('/enhance', async (req, res) => {
@@ -202,7 +260,7 @@ router.post('/discard', async (req, res) => {
   }
 });
 
-// 获取背包 + 已穿戴装备（通配路由放最后）
+// 获取背包 + 已穿戴装备
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   try {

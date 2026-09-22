@@ -122,7 +122,10 @@ const UI = {
           ? '三维 +100' 
           : `+${actualStat(eq.statValue, eq.enhanceLevel)}`;
         const affixStr = renderAffixes(eq.affixes);
-        const enhanceBtn = isArtifact ? '' : `<span onclick="event.stopPropagation(); onEnhance(${eq.id})" style="cursor:pointer;color:#f9c74f;font-size:11px;margin-right:6px;">强化</span>`;
+        const enhanceBtn = isArtifact ? '' : `
+          <span onclick="event.stopPropagation(); onEnhance(${eq.id})" style="cursor:pointer;color:#f9c74f;font-size:11px;margin-right:6px;">强化</span>
+          <span onclick="event.stopPropagation(); onReroll(${eq.id})" style="cursor:pointer;color:#4a9eff;font-size:11px;margin-right:6px;">洗练</span>
+        `;
         const setTag = eq.setName 
           ? `<span style="color:#f9c74f;font-size:10px;margin-left:4px;">[${eq.setName}]</span>` 
           : '';
@@ -160,7 +163,10 @@ const UI = {
         ? '三维 +100' 
         : `+${actualStat(item.statValue, item.enhanceLevel)}`;
       const affixStr = renderAffixes(item.affixes);
-      const enhanceBtn = isArtifact ? '' : `<span onclick="onEnhance(${item.id})" style="cursor:pointer;color:#f9c74f;">强化</span>`;
+      const enhanceBtn = isArtifact ? '' : `
+        <span onclick="onEnhance(${item.id})" style="cursor:pointer;color:#f9c74f;">强化</span>
+        <span onclick="onReroll(${item.id})" style="cursor:pointer;color:#4a9eff;">洗练</span>
+      `;
       const setTag = item.setName 
         ? `<span style="color:#f9c74f;font-size:10px;margin-left:4px;">[${item.setName}]</span>` 
         : '';
@@ -352,3 +358,4 @@ function onActivateTalent(id) { Talent.activate(window.state, id); }
 function onClaimAchievement(key) { Achievement.claim(window.state, key); }
 function onClaimDaily(key) { Daily.claim(window.state, key); }
 function onBuyItem(key)   { Shop.buy(window.state, key); }
+function onReroll(id) { Equipment.reroll(window.state, id); }

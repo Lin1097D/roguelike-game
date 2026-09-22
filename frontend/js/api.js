@@ -25,6 +25,7 @@ const API = {
   discardItem:  (userId, equipmentId) => API.request('/equipment/discard', 'POST', { userId, equipmentId }),
   autoEquip:    (userId) => API.request('/equipment/autoEquip', 'POST', { userId }),
   enhanceItem:  (userId, equipmentId) => API.request('/equipment/enhance', 'POST', { userId, equipmentId }),
+  rerollItem: (userId, equipmentId) => API.request('/equipment/reroll', 'POST', { userId, equipmentId }),
 
   // 天赋
   getTalents:   (userId) => API.request('/talent/' + userId),

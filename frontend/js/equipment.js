@@ -87,5 +87,19 @@ const Equipment = {
     const qName = CONFIG.qualityNames[drop.quality];
     const sName = CONFIG.slotNames[drop.slot];
     UI.log(`🎁 掉落 [${qName}] ${drop.name}（${sName}）属性 +${drop.statValue}`, 'drop');
-  }
+  },
+  
+  async reroll(state, equipmentId) {
+    const r = await API.rerollItem(state.userId, equipmentId);
+    if (r.code === 0) {
+      UI.log(`✨ 洗练成功！花费 ${r.cost} 金币`, 'good');
+      if (r.save) {
+        state.save = { ...state.save, ...r.save };
+        UI.renderPlayer(state.save);
+      }
+      await Equipment.refresh(state);
+    } else {
+      UI.log('洗练失败：' + r.msg, 'bad');
+    }
+  },
 };
