@@ -14,6 +14,7 @@ const announcementRouter = require('./modules/announcement');
 const achievementRouter = require('./modules/achievement');
 const dailyRouter = require('./modules/daily');
 const rebirthRouter = require('./modules/rebirth');
+const signinRouter = require('./modules/signin');
 
 const app = express();
 app.use(cors());
@@ -29,9 +30,9 @@ app.use('/api/announcement', announcementRouter);
 app.use('/api/achievement', achievementRouter);
 app.use('/api/daily', dailyRouter);
 app.use('/api/rebirth', rebirthRouter);
+app.use('/api/signin', signinRouter);
 
 const PORT = process.env.PORT || 8080;
-//const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });
