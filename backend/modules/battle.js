@@ -5,14 +5,13 @@ const config = require('../config/gameConfig');
 const equipmentUtil = require('./equipment');
 const stats = require('./stats');
 
-// 升到 N 级所需经验
 function expNeed(level) {
   return Math.floor(100 * level * Math.pow(1.2, level - 1));
 }
 
 // 击杀怪物
 router.post('/kill', async (req, res) => {
-  const { userId, monsterType } = req.body;
+  const { userId, monsterType, damage, monsterName } = req.body;
   try {
     const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
     if (rows.length === 0) return res.json({ code: 1, msg: '存档不存在' });
@@ -37,7 +36,6 @@ router.post('/kill', async (req, res) => {
       goldGain = Math.floor(goldGain * (1 + goldBonus));
     }
 
-    // 经验结算
     const expGain = config.level.expPerKill[monsterType] || config.level.expPerKill.normal;
     let newExp = (s.exp || 0) + expGain;
     let newLevel = s.level || 1;
@@ -57,7 +55,6 @@ router.post('/kill', async (req, res) => {
     }
 
     const levelUp = newLevel > (s.level || 1);
-
     const talentBonus = await stats.getTalentBonus(userId);
 
     await pool.query(
@@ -69,15 +66,28 @@ router.post('/kill', async (req, res) => {
         gold = gold + ?, jieli = ?,
         level = ?, exp = ?, free_points = free_points + ?,
         daily_kill = daily_kill + 1,
-		last_daily = CURDATE(),
+        total_damage = total_damage + ?,
         updated_at = NOW()
        WHERE user_id = ?`,
       [reward.atk, reward.hp, reward.hp, heal.hp,
        reward.mp, reward.mp, heal.mp,
        newKill, newElite, newBoss, goldGain, newJieli,
        newLevel, newExp, freePointsGain,
+       damage || 0,
        userId]
     );
+
+    // 记录怪物图鉴
+    if (monsterName) {
+      try {
+        await pool.query(
+          `INSERT INTO monster_log (user_id, monster_name, monster_type, kill_count)
+           VALUES (?, ?, ?, 1)
+           ON DUPLICATE KEY UPDATE kill_count = kill_count + 1`,
+          [userId, monsterName, monsterType]
+        );
+      } catch (e) {}
+    }
 
     await stats.recalcAndSave(userId);
 
@@ -189,7 +199,10 @@ router.post('/hurt', async (req, res) => {
       }
     }
 
-    await pool.query('UPDATE save SET hp=? WHERE user_id=?', [newHp, userId]);
+    await pool.query(
+      'UPDATE save SET hp=?, total_damage_taken = total_damage_taken + ? WHERE user_id=?',
+      [newHp, damage, userId]
+    );
     res.json({ code: 0, hp: newHp, dead, revived });
   } catch (e) {
     res.json({ code: 1, msg: e.message });
@@ -243,7 +256,7 @@ router.post('/tick', async (req, res) => {
   }
 });
 
-// 死亡复活（等级保留）
+// 死亡复活
 router.post('/revive', async (req, res) => {
   const { userId } = req.body;
   try {
@@ -258,7 +271,7 @@ router.post('/revive', async (req, res) => {
 
     if (noReset) {
       await pool.query(
-        `UPDATE save SET gold=0, jieli=?, updated_at=NOW() WHERE user_id=?`,
+        `UPDATE save SET gold=0, jieli=?, death_count = death_count + 1, updated_at=NOW() WHERE user_id=?`,
         [newJieli, userId]
       );
     } else {
@@ -268,6 +281,7 @@ router.post('/revive', async (req, res) => {
           base_atk=?, base_max_hp=?, base_max_mp=?, base_crit_rate=?, base_dodge_rate=?,
           kill_count=0, elite_count=0, boss_count=0, gold=0,
           jieli=?,
+          death_count = death_count + 1,
           updated_at=NOW()
          WHERE user_id=?`,
         [cfg.initHp, cfg.initHp, cfg.initAtk, cfg.initMp, cfg.initMp, cfg.initCrit, cfg.initDodge,

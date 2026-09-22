@@ -10,6 +10,25 @@ window.state = state;
 let battleSpeed = 1;
 window.battleSpeed = battleSpeed;
 
+// ============ 游玩时长统计 ============
+let playtimeTimer = null;
+
+function startPlaytimeTimer() {
+  if (playtimeTimer) return;
+  playtimeTimer = setInterval(async () => {
+    if (state.userId) {
+      await API.sendPlaytime(state.userId, 60);
+    }
+  }, 60000);
+}
+
+function stopPlaytimeTimer() {
+  if (playtimeTimer) {
+    clearInterval(playtimeTimer);
+    playtimeTimer = null;
+  }
+}
+
 // ============ 注册 / 登录 ============
 async function doRegister() {
   const username = document.getElementById('username').value.trim();
@@ -31,7 +50,6 @@ async function doLogin() {
     const sr = await API.getSave(state.userId);
     if (sr.code === 0) {
       state.save = sr.data;
-      // 离线收益
       if (sr.offlineReward) {
         const o = sr.offlineReward;
         UI.log(`💤 离线 ${o.hours} 小时，获得 ${o.gold} 金币、${o.exp} 经验`, 'drop');
@@ -43,8 +61,8 @@ async function doLogin() {
     Battle.spawn(state.save);
     UI.log('欢迎回来，' + username, 'good');
 
-    // 启动公告轮询
     startPolling();
+    startPlaytimeTimer();
   } else {
     document.getElementById('authMsg').textContent = r.msg;
     document.getElementById('authMsg').style.color = '#ff5773';
@@ -53,12 +71,13 @@ async function doLogin() {
 
 function logout() {
   Battle.stopAuto();
+  stopPolling();
+  stopPlaytimeTimer();
   state.userId = null; state.save = null; state.equipped = {}; state.bag = []; state.talents = [];
   document.getElementById('gamePanel').classList.add('hidden');
   document.getElementById('authPanel').classList.remove('hidden');
   document.getElementById('log').innerHTML = '';
   document.getElementById('authMsg').textContent = '';
-  stopPolling();
 }
 
 // ============ 标签切换 ============
@@ -76,6 +95,8 @@ function switchTab(tabName) {
   if (tabName === 'daily') Daily.refresh(state);
   if (tabName === 'signin') Signin.refresh(state);
   if (tabName === 'rank') Rank.refresh(state);
+  if (tabName === 'stats') Stats.refresh(state);
+  if (tabName === 'monster') Monster.refresh(state);
 }
 
 // ============ 战斗速度 ============

@@ -46,14 +46,15 @@
       <div class="tab" data-tab="bag" onclick="switchTab('bag')">🎒 背包</div>
       <div class="tab" data-tab="talent" onclick="switchTab('talent')">✨ 天赋</div>
       <div class="tab" data-tab="shop" onclick="switchTab('shop')">🛒 商店</div>
-	  <div class="tab" data-tab="achievement" onclick="switchTab('achievement')">🏆 成就</div>
-	  <div class="tab" data-tab="daily" onclick="switchTab('daily')">📅 每日</div>
-	  <div class="tab" data-tab="signin" onclick="switchTab('signin')">📆 签到</div>
-	  <div class="tab" data-tab="rank" onclick="switchTab('rank')">🏆 排行</div>
+      <div class="tab" data-tab="achievement" onclick="switchTab('achievement')">🏆 成就</div>
+      <div class="tab" data-tab="daily" onclick="switchTab('daily')">📅 每日</div>
+      <div class="tab" data-tab="signin" onclick="switchTab('signin')">📆 签到</div>
+      <div class="tab" data-tab="rank" onclick="switchTab('rank')">🏅 排行</div>
+      <div class="tab" data-tab="stats" onclick="switchTab('stats')">📊 统计</div>
+      <div class="tab" data-tab="monster" onclick="switchTab('monster')">📖 图鉴</div>
     </div>
 
     <div class="tab-content">
-      <!-- 战斗 -->
       <div class="tab-pane active" id="tab-battle">
         <div id="monsterBox" class="monster normal">
           <div class="name" id="mName">史莱姆</div>
@@ -78,7 +79,6 @@
         </div>
       </div>
 
-      <!-- 背包 -->
       <div class="tab-pane" id="tab-bag">
         <div class="equipment-panel">
           <div class="equipment-title">
@@ -101,7 +101,6 @@
         </div>
       </div>
 
-      <!-- 天赋 -->
       <div class="tab-pane" id="tab-talent">
         <div class="talent-panel">
           <div class="equipment-title">
@@ -112,38 +111,47 @@
         </div>
       </div>
 
-      <!-- 商店 -->
       <div class="tab-pane" id="tab-shop">
         <div class="equipment-title">🛒 商店</div>
         <div id="shopList" class="shop-list"></div>
       </div>
-	  <!-- 成就 -->
-	  <div class="tab-pane" id="tab-achievement">
-	    <div class="equipment-title">🏆 成就</div>
-	    <div id="achievementList" class="achievement-list"></div>
-	  </div>
-	  <!-- 每日任务 -->
-	  <div class="tab-pane" id="tab-daily">
-	    <div class="equipment-title">📅 每日任务</div>
-	    <div id="dailyList" class="daily-list"></div>
-	    <div style="margin-top:12px;text-align:center;">
-	      <button class="btn" onclick="onRebirth()" style="padding:8px 16px;">🔄 转生（需 100 级）</button>
-	    </div>
-	  </div>
-	  <!-- 每日签到 -->
-	  <div class="tab-pane" id="tab-signin">
-	    <div class="equipment-title">📆 每日签到</div>
-	    <div id="signinList" class="signin-list"></div>
-	    <div style="text-align:center;margin-top:12px;">
-	      <button class="btn" onclick="onSignin()" id="btnSignin" style="padding:8px 24px;">签到</button>
-	    </div>
-	  </div>
-	  <!-- 排行榜 -->
-	  <div class="tab-pane" id="tab-rank">
-	    <div class="equipment-title">🏆 排行榜</div>
-	    <div id="rankTabs" class="rank-tabs"></div>
-	    <div id="rankList" class="rank-list"></div>
-	  </div>
+
+      <div class="tab-pane" id="tab-achievement">
+        <div class="equipment-title">🏆 成就</div>
+        <div id="achievementList" class="achievement-list"></div>
+      </div>
+
+      <div class="tab-pane" id="tab-daily">
+        <div class="equipment-title">📅 每日任务</div>
+        <div id="dailyList" class="daily-list"></div>
+        <div style="margin-top:12px;text-align:center;">
+          <button class="btn" onclick="onRebirth()" style="padding:8px 16px;">🔄 转生（需 100 级）</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-signin">
+        <div class="equipment-title">📆 每日签到</div>
+        <div id="signinList" class="signin-list"></div>
+        <div style="text-align:center;margin-top:12px;">
+          <button class="btn" onclick="onSignin()" id="btnSignin" style="padding:8px 24px;">签到</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-rank">
+        <div class="equipment-title">🏅 排行榜</div>
+        <div id="rankTabs" class="rank-tabs"></div>
+        <div id="rankList" class="rank-list"></div>
+      </div>
+
+      <div class="tab-pane" id="tab-stats">
+        <div class="equipment-title">📊 数据统计</div>
+        <div id="statsList" class="stats-list"></div>
+      </div>
+
+      <div class="tab-pane" id="tab-monster">
+        <div class="equipment-title">📖 怪物图鉴</div>
+        <div id="monsterList" class="monster-list"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -154,11 +162,11 @@
 <script src="js/equipment.js"></script>
 <script src="js/talent.js"></script>
 <script src="js/shop.js"></script>
-<script src="js/battle.js"></script>
-<script src="js/main.js"></script>
-<script src="js/achievement.js"></script>
-<script src="js/daily.js"></script>
 <script src="js/signin.js"></script>
 <script src="js/rank.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/monster.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

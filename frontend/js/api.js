@@ -11,7 +11,7 @@ const API = {
 
   getSave:  (userId) => API.request('/save/' + userId),
 
-  kill:     (userId, monsterType) => API.request('/battle/kill', 'POST', { userId, monsterType }),
+  kill:     (userId, monsterType, damage, monsterName) => API.request('/battle/kill', 'POST', { userId, monsterType, damage, monsterName }),
   hurt:     (userId, damage) => API.request('/battle/hurt', 'POST', { userId, damage }),
   heal:     (userId, hp, mp) => API.request('/battle/heal', 'POST', { userId, hp, mp }),
   useMp:    (userId, cost) => API.request('/battle/useMp', 'POST', { userId, cost }),
@@ -58,4 +58,11 @@ const API = {
   getRankLevel: () => API.request('/rank/level'),
   getRankAtk: () => API.request('/rank/atk'),
   getRankKill: () => API.request('/rank/kill'),
+  
+  // 数据统计
+  getStats: (userId) => API.request('/stats/' + userId),
+  sendPlaytime: (userId, seconds) => API.request('/stats/playtime', 'POST', { userId, seconds }),
+  
+  // 怪物图鉴
+  getMonsterLog: (userId) => API.request('/monster/' + userId),
 };

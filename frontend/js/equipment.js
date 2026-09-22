@@ -62,7 +62,6 @@ const Equipment = {
     }
   },
 
-  // 强化
   async enhance(state, equipmentId) {
     const r = await API.enhanceItem(state.userId, equipmentId);
     if (r.code === 0) {
@@ -83,12 +82,6 @@ const Equipment = {
     }
   },
 
-  showDrop(drop) {
-    const qName = CONFIG.qualityNames[drop.quality];
-    const sName = CONFIG.slotNames[drop.slot];
-    UI.log(`🎁 掉落 [${qName}] ${drop.name}（${sName}）属性 +${drop.statValue}`, 'drop');
-  },
-  
   async reroll(state, equipmentId) {
     const r = await API.rerollItem(state.userId, equipmentId);
     if (r.code === 0) {
@@ -102,4 +95,17 @@ const Equipment = {
       UI.log('洗练失败：' + r.msg, 'bad');
     }
   },
+
+  async compare(state, equipmentId) {
+    const item = state.bag.find(x => x.id === equipmentId);
+    if (!item) return;
+    const current = state.equipped[item.slot];
+    UI.showCompare(item, current);
+  },
+
+  showDrop(drop) {
+    const qName = CONFIG.qualityNames[drop.quality];
+    const sName = CONFIG.slotNames[drop.slot];
+    UI.log(`🎁 掉落 [${qName}] ${drop.name}（${sName}）属性 +${drop.statValue}`, 'drop');
+  }
 };

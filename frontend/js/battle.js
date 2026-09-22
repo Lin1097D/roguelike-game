@@ -2,6 +2,7 @@ const Battle = {
   currentMonster: null,
   autoTimer: null,
   rageTurns: 0,
+  lastDamage: 0,
 
   pickName(arr) { return arr[Math.floor(Math.random() * arr.length)]; },
 
@@ -35,6 +36,7 @@ const Battle = {
     else if (next % CONFIG.spawn.eliteEvery === 0) type = 'elite';
 
     this.currentMonster = this.makeMonster(type, save);
+    this.lastDamage = 0;   // 重置累计伤害
     UI.renderMonster(this.currentMonster);
 
     if (type === 'elite') UI.log('⚡ 精英怪出现：' + this.currentMonster.name, 'elite');
@@ -111,9 +113,9 @@ const Battle = {
       state.save.max_hp
     );
     m.hp -= dmg;
+    this.lastDamage += dmg;   // 累加伤害
     UI.log(`你造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
 
-    // 音效 + 伤害数字
     Sound.play('attack');
     showDamageNumber(dmg, isCrit);
 
@@ -145,6 +147,7 @@ const Battle = {
           state.talents || [], state.save.hp, state.save.max_hp
         );
         m.hp -= second.dmg;
+        this.lastDamage += second.dmg;   // 累加伤害
         UI.log(`⚡ 连击！额外造成 ${second.dmg} 点伤害${second.isCrit ? ' (暴击!)' : ''}`, 'good');
         showDamageNumber(second.dmg, second.isCrit);
       }
@@ -192,7 +195,7 @@ const Battle = {
     UI.log(`击杀 ${m.name}！`, m.type === 'normal' ? 'good' : m.type);
     Sound.play('kill');
 
-    const r = await API.kill(state.userId, m.type);
+    const r = await API.kill(state.userId, m.type, this.lastDamage || 0, m.name);
     if (r.code === 0) {
       state.save = { ...state.save, ...r.data };
       const sr = await API.getSave(state.userId);
@@ -282,6 +285,7 @@ const Battle = {
         state.save.max_hp
       );
       this.currentMonster.hp -= dmg;
+      this.lastDamage += dmg;   // 累加伤害
       UI.log(`💥 重击造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
       showDamageNumber(dmg, isCrit);
       Sound.play('attack');
@@ -301,6 +305,7 @@ const Battle = {
         state.save.max_hp
       );
       this.currentMonster.hp -= dmg;
+      this.lastDamage += dmg;   // 累加伤害
       const healAmt = Math.floor(dmg * 0.3);
       const hr = await API.heal(state.userId, healAmt, 0);
       if (hr.code === 0) state.save = { ...state.save, ...hr.data };
