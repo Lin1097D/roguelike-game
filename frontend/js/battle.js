@@ -88,7 +88,7 @@ const Battle = {
     // 自动治疗
     const hpPercent = state.save.hp / state.save.max_hp;
     const healSkill = CONFIG.skills.heal;
-    if (hpPercent < 0.6 && state.save.mp >= healSkill.cost) {
+    if (CONFIG.settings.autoHeal && hpPercent < 0.6 && state.save.mp >= healSkill.cost) {
       const mr = await API.useMp(state.userId, healSkill.cost);
       if (mr.code === 0) {
         state.save.mp -= healSkill.cost;
@@ -117,7 +117,7 @@ const Battle = {
     UI.log(`你造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
 
     Sound.play('attack');
-    showDamageNumber(dmg, isCrit);
+    if (CONFIG.settings.showDamage) showDamageNumber(dmg, isCrit);
 
     // 嗜血
     const drainTalent = (state.talents || []).find(t => t.key === 'b_drain' && t.active);
@@ -149,7 +149,7 @@ const Battle = {
         m.hp -= second.dmg;
         this.lastDamage += second.dmg;   // 累加伤害
         UI.log(`⚡ 连击！额外造成 ${second.dmg} 点伤害${second.isCrit ? ' (暴击!)' : ''}`, 'good');
-        showDamageNumber(second.dmg, second.isCrit);
+        if (CONFIG.settings.showDamage) showDamageNumber(second.dmg, second.isCrit);
       }
     }
 
@@ -244,7 +244,7 @@ const Battle = {
   startAuto(state) {
     if (this.autoTimer) { this.stopAuto(); return; }
     document.getElementById('btnAuto').textContent = '停止战斗';
-    const interval = 500 / (window.battleSpeed || 1);
+    const interval = 500 / (CONFIG.settings.battleSpeed || 1);
     this.autoTimer = setInterval(() => {
       if (state.save && state.save.hp > 0 && this.currentMonster && this.currentMonster.hp > 0) {
         this.attackOnce(state);

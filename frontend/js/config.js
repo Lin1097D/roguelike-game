@@ -10,6 +10,14 @@ const CONFIG = {
   },
   soundEnabled: true,
 
+settings: {
+    soundEnabled: true,
+    battleSpeed: 1,
+    autoHeal: true,
+    autoDouble: false,
+    showDamage: true
+  },
+
   skills: {
     heavy: { cost: 8, mult: 2.0, name: '重击' },
     heal:  { cost: 10, name: '治疗' },
@@ -60,5 +68,5 @@ const CONFIG = {
 
   spawn: { eliteEvery: 10, bossEvery: 50 },
 
-  battleSpeed: 1
+  battleSpeed: 1,
 };

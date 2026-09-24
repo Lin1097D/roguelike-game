@@ -1,3 +1,7 @@
+// 加载设置
+if (typeof Settings !== 'undefined') {
+  Settings.load();
+}
 const state = {
   userId: null,
   save: null,
@@ -106,6 +110,7 @@ function switchTab(tabName) {
   if (tabName === 'monster') Monster.refresh(state);
   if (tabName === 'boss' && typeof Boss !== 'undefined' && !Boss.currentBoss) Boss.refresh(state);
   if (tabName === 'skill') Skill.refresh(state);
+  if (tabName === 'settings') Settings.refresh();
 }
 
 // ============ 战斗速度 ============

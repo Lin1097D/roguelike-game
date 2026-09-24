@@ -68,4 +68,36 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+router.post('/import', async (req, res) => {
+  const { userId, data } = req.body;
+  try {
+    if (!data || !data.save) return res.json({ code: 1, msg: '数据格式错误' });
+
+    const s = data.save;
+    await pool.query(
+      `UPDATE save SET 
+        hp=?, max_hp=?, atk=?, mp=?, max_mp=?,
+        crit_rate=?, dodge_rate=?,
+        kill_count=?, elite_count=?, boss_count=?,
+        gold=?, jieli=?, level=?, exp=?, free_points=?,
+        base_atk=?, base_max_hp=?, base_max_mp=?,
+        base_crit_rate=?, base_dodge_rate=?,
+        skill_points=?, total_skill_points=?
+       WHERE user_id=?`,
+      [s.hp, s.max_hp, s.atk, s.mp, s.max_mp,
+       s.crit_rate, s.dodge_rate,
+       s.kill_count || 0, s.elite_count || 0, s.boss_count || 0,
+       s.gold || 0, s.jieli || 0, s.level || 1, s.exp || 0, s.free_points || 0,
+       s.base_atk || 1, s.base_max_hp || 100, s.base_max_mp || 50,
+       s.base_crit_rate || 0.05, s.base_dodge_rate || 0.03,
+       s.skill_points || 0, s.total_skill_points || 0,
+       userId]
+    );
+
+    res.json({ code: 0, msg: '导入成功' });
+  } catch (e) {
+    res.json({ code: 1, msg: e.message });
+  }
+});
+
 module.exports = router;

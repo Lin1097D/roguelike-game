@@ -492,6 +492,74 @@ const UI = {
       `;
     }).join('');
   },
+  renderSettings(settings) {
+    const el = document.getElementById('settingsList');
+    if (!el) return;
+  
+    el.innerHTML = `
+      <div class="setting-item">
+        <div class="setting-label">🔊 音效</div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" ${settings.soundEnabled ? 'checked' : ''} onchange="onSettingToggle('soundEnabled')">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">⚡ 默认战斗速度</div>
+        <div class="setting-control">
+          <select onchange="onSettingSpeed(parseInt(this.value))" style="background:#0a0806;color:#e8dcc0;border:1px solid #3a3020;border-radius:4px;padding:4px 8px;">
+            <option value="1" ${settings.battleSpeed === 1 ? 'selected' : ''}>1x</option>
+            <option value="2" ${settings.battleSpeed === 2 ? 'selected' : ''}>2x</option>
+            <option value="4" ${settings.battleSpeed === 4 ? 'selected' : ''}>4x</option>
+          </select>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">💚 自动治疗</div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" ${settings.autoHeal ? 'checked' : ''} onchange="onSettingToggle('autoHeal')">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">💥 显示伤害数字</div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" ${settings.showDamage ? 'checked' : ''} onchange="onSettingToggle('showDamage')">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">💾 导出存档</div>
+        <div class="setting-control">
+          <button class="btn" style="padding:4px 12px;font-size:12px;" onclick="onExportSave()">导出</button>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">📥 导入存档</div>
+        <div class="setting-control">
+          <button class="btn" style="padding:4px 12px;font-size:12px;" onclick="onImportSave()">导入</button>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">🗑️ 清空缓存</div>
+        <div class="setting-control">
+          <button class="btn" style="padding:4px 12px;font-size:12px;" onclick="onClearCache()">清空</button>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">🚪 退出登录</div>
+        <div class="setting-control">
+          <button class="btn" style="padding:4px 12px;font-size:12px;" onclick="onSettingsLogout()">退出</button>
+        </div>
+      </div>
+    `;
+  },
 };
 
 
@@ -512,3 +580,9 @@ function onSignin()       { Signin.do(window.state); }
 function onRankTab(tab)   { Rank.switchTab(window.state, tab); }
 function onBossStart(key) { Boss.start(window.state, key); }
 function onBossAuto()     { Boss.autoFight(window.state); }
+function onSettingToggle(key) { Settings.toggle(key); }
+function onSettingSpeed(v) { Settings.set('battleSpeed', v); }
+function onExportSave() { Settings.exportSave(window.state); }
+function onImportSave() { Settings.importSave(window.state); }
+function onClearCache() { Settings.clearCache(); }
+function onSettingsLogout() { Settings.logout(); }

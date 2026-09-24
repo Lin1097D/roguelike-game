@@ -74,4 +74,6 @@ const API = {
   // 技能
   getSkills: (userId) => API.request('/skill/' + userId),
   learnSkill: (userId, skillKey) => API.request('/skill/learn', 'POST', { userId, skillKey }),
+  
+  importSave: (userId, data) => API.request('/save/import', 'POST', { userId, data }),
 };
