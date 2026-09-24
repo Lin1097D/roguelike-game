@@ -86,31 +86,141 @@ function logout() {
 }
 
 // ============ 标签切换 ============
-function switchTab(tabName) {
+// ============ 主标签配置 ============
+const MAIN_TABS = {
+  battle: {
+    name: '战斗',
+    icon: '⚔️',
+    subtabs: null,   // 无子标签，直接显示战斗
+    default: 'battle'
+  },
+  grow: {
+    name: '养成',
+    icon: '🎒',
+    subtabs: ['bag', 'talent', 'skill'],
+    default: 'bag'
+  },
+  social: {
+    name: '社交',
+    icon: '🏆',
+    subtabs: ['rank', 'boss', 'monster'],
+    default: 'rank'
+  },
+  shop: {
+    name: '商店',
+    icon: '🛒',
+    subtabs: ['shop', 'daily', 'signin', 'achievement'],
+    default: 'shop'
+  },
+  more: {
+    name: '更多',
+    icon: '⚙️',
+    subtabs: ['stats', 'settings'],
+    default: 'stats'
+  }
+};
+
+const SUBTAB_NAMES = {
+  battle: '战斗',
+  bag: '背包',
+  talent: '天赋',
+  skill: '技能',
+  rank: '排行',
+  boss: 'BOSS',
+  monster: '图鉴',
+  shop: '商店',
+  daily: '每日',
+  signin: '签到',
+  achievement: '成就',
+  stats: '统计',
+  settings: '设置'
+};
+
+// 当前状态
+let currentMainTab = 'battle';
+let currentSubTab = null;
+
+// ============ 主标签切换 ============
+function switchMainTab(mainTab) {
   // 切走 BOSS 标签，停止 BOSS 自动战斗
-  if (tabName !== 'boss' && typeof Boss !== 'undefined' && Boss.bossTimer) {
-    Boss.stopAuto();
+  if (currentMainTab === 'social' && currentSubTab === 'boss' && mainTab !== 'social') {
+    if (typeof Boss !== 'undefined' && Boss.bossTimer) Boss.stopAuto();
   }
 
-  document.querySelectorAll('.tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.tab === tabName);
-  });
-  document.querySelectorAll('.tab-pane').forEach(p => {
-    p.classList.toggle('active', p.id === 'tab-' + tabName);
+  currentMainTab = mainTab;
+
+  // 更新底部导航高亮
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.main === mainTab);
   });
 
-  if (tabName === 'bag') Equipment.refresh(state);
-  if (tabName === 'talent') Talent.refresh(state);
-  if (tabName === 'shop') Shop.refresh(state);
-  if (tabName === 'achievement') Achievement.refresh(state);
-  if (tabName === 'daily') Daily.refresh(state);
-  if (tabName === 'signin') Signin.refresh(state);
-  if (tabName === 'rank') Rank.refresh(state);
-  if (tabName === 'stats') Stats.refresh(state);
-  if (tabName === 'monster') Monster.refresh(state);
-  if (tabName === 'boss' && typeof Boss !== 'undefined' && !Boss.currentBoss) Boss.refresh(state);
-  if (tabName === 'skill') Skill.refresh(state);
-  if (tabName === 'settings') Settings.refresh();
+  const cfg = MAIN_TABS[mainTab];
+  if (!cfg) return;
+
+  // 渲染子标签
+  const subTabsEl = document.getElementById('subTabs');
+  if (cfg.subtabs) {
+    subTabsEl.classList.remove('hidden');
+    subTabsEl.innerHTML = cfg.subtabs.map(st => `
+      <div class="subtab" data-sub="${st}" onclick="switchSubTab('${st}')">
+        ${SUBTAB_NAMES[st] || st}
+      </div>
+    `).join('');
+    // 切到默认子标签
+    switchSubTab(cfg.default, true);
+  } else {
+    // 战斗：无子标签
+    subTabsEl.classList.add('hidden');
+    subTabsEl.innerHTML = '';
+    switchSubTab('battle', true);
+  }
+}
+
+// ============ 子标签切换 ============
+function switchSubTab(subTab, force) {
+  currentSubTab = subTab;
+
+  // 更新子标签高亮
+  document.querySelectorAll('.subtab').forEach(t => {
+    t.classList.toggle('active', t.dataset.sub === subTab);
+  });
+
+  // 切内容
+  document.querySelectorAll('.tab-pane').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-' + subTab);
+  });
+
+  // 加载数据
+  if (subTab === 'bag') Equipment.refresh(state);
+  if (subTab === 'talent') Talent.refresh(state);
+  if (subTab === 'skill') Skill.refresh(state);
+  if (subTab === 'rank') Rank.refresh(state);
+  if (subTab === 'boss' && typeof Boss !== 'undefined' && !Boss.currentBoss) Boss.refresh(state);
+  if (subTab === 'monster') Monster.refresh(state);
+  if (subTab === 'shop') Shop.refresh(state);
+  if (subTab === 'daily') Daily.refresh(state);
+  if (subTab === 'signin') Signin.refresh(state);
+  if (subTab === 'achievement') Achievement.refresh(state);
+  if (subTab === 'stats') Stats.refresh(state);
+  if (subTab === 'settings') Settings.refresh();
+}
+
+// 兼容旧代码：switchTab 仍可用
+function switchTab(tabName) {
+  // 找到 tabName 属于哪个主标签
+  for (const main in MAIN_TABS) {
+    const cfg = MAIN_TABS[main];
+    if (cfg.subtabs && cfg.subtabs.includes(tabName)) {
+      switchMainTab(main);
+      // switchMainTab 会切到默认子标签，需要再切到目标
+      setTimeout(() => switchSubTab(tabName), 0);
+      return;
+    }
+    if (cfg.default === tabName) {
+      switchMainTab(main);
+      return;
+    }
+  }
 }
 
 // ============ 战斗速度 ============
