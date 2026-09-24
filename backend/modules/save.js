@@ -22,8 +22,8 @@ router.get('/:userId', async (req, res) => {
       if (diffHours >= 0.1) {
         const cappedHours = Math.min(diffHours, 24);
 
-        const goldPerHour = (config.goldGain.baseNormal + 100 * config.goldGain.perKill) * 100;
-        const expPerHour = config.level.expPerKill.normal * 100;
+        const goldPerHour = (config.goldGain.baseNormal + 10000 * config.goldGain.perKill) * 100;
+        const expPerHour = config.level.expPerKill.normal * 10000;
 
         const goldReward = Math.floor(goldPerHour * cappedHours);
         const expReward = Math.floor(expPerHour * cappedHours);

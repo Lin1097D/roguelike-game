@@ -34,8 +34,8 @@ module.exports = {
     tierSize: 5,
     baseHp: 30,
     baseAtk: 3,
-    hpPerTier: 15,
-    atkPerTier: 2,
+    hpPerTier: 150,
+    atkPerTier: 20,
     eliteMultiplier: { hp: 3, atk: 1.5, crit: 0.1 },
     bossMultiplier:  { hp: 10, atk: 2, crit: 0.2 }
   },
@@ -43,7 +43,7 @@ module.exports = {
   // 精英/Boss 触发条件
   spawn: {
     eliteEvery: 10,   // 每 10 杀出精英
-    bossEvery: 500     // 每 50 杀出 Boss
+    bossEvery: 50     // 每 50 杀出 Boss
   },
 
   // 死亡奖励
