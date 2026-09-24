@@ -76,4 +76,9 @@ const API = {
   learnSkill: (userId, skillKey) => API.request('/skill/learn', 'POST', { userId, skillKey }),
   
   importSave: (userId, data) => API.request('/save/import', 'POST', { userId, data }),
+  
+  // 副本
+  getDungeonList: (userId) => API.request('/dungeon/' + userId),
+  startDungeon: (userId, dungeonKey, useGold) => API.request('/dungeon/start', 'POST', { userId, dungeonKey, useGold }),
+  finishDungeon: (userId, dungeonKey, win, killed) => API.request('/dungeon/finish', 'POST', { userId, dungeonKey, win, killed }),
 };

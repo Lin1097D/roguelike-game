@@ -594,6 +594,72 @@ const UI = {
       </div>
     `;
   },
+  renderDungeonList(dungeons, remaining, dailyFree, extraCost) {
+    const el = document.getElementById('dungeonList');
+    if (!el) return;
+  
+    const header = document.getElementById('dungeonHeader');
+    if (header) {
+      header.innerHTML = `
+        <div class="boss-header">
+          <span>今日免费次数：<b style="color:#d4af37">${remaining}/${dailyFree}</b></span>
+          <span style="font-size:12px;color:#b8a878;">额外挑战：${extraCost} 金币/次</span>
+        </div>
+      `;
+    }
+  
+    el.innerHTML = dungeons.map(d => `
+      <div class="boss-item">
+        <div class="boss-name" style="color:#4a9eff;">${d.name}</div>
+        <div class="boss-info">推荐等级 ${d.level} · ${d.monsterCount} 只怪 · ${d.timeLimit}s</div>
+        <div class="boss-info">怪物 HP ${d.monsterHp} · 攻击 ${d.monsterAtk}</div>
+        <div class="boss-reward">
+          奖励：💰${d.reward.gold}
+          ${d.reward.soul ? ` 💀${d.reward.soul}` : ''}
+          ${d.reward.points ? ` ⭐${d.reward.points}` : ''}
+        </div>
+        <button class="btn boss-btn" onclick="onDungeonStart('${d.key}')">挑战</button>
+      </div>
+    `).join('');
+  },
+  
+  renderDungeonBattle(dungeon, killed, total, timeLeft) {
+    const el = document.getElementById('dungeonList');
+    if (!el) return;
+    const progress = Math.floor(killed / total * 100);
+    el.innerHTML = `
+      <div class="boss-battle" style="border-color:#4a9eff;">
+        <div class="boss-battle-name" style="color:#4a9eff;">🏰 ${dungeon.name}</div>
+        <div class="title-sm">进度 ${killed}/${total} · 剩余 ${timeLeft}s</div>
+        <div class="bar hp-bar" style="height:20px;">
+          <div style="width:${progress}%;background:linear-gradient(180deg,#4a9eff,#1a4a9f);"></div>
+        </div>
+        <div id="dungeonMonsterBox"></div>
+        <div style="text-align:center;margin-top:10px;">
+          <button class="btn" onclick="onDungeonAuto()" id="btnDungeonAuto" style="padding:6px 16px;">自动挑战</button>
+        </div>
+      </div>
+    `;
+    if (Dungeon.currentMonster) {
+      UI.renderDungeonMonster(Dungeon.currentMonster, killed, total, timeLeft);
+    }
+  },
+  
+  renderDungeonMonster(monster, killed, total, timeLeft) {
+    const el = document.getElementById('dungeonMonsterBox');
+    if (!el) return;
+    const pct = Math.max(0, monster.hp / monster.maxHp * 100);
+    el.innerHTML = `
+      <div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.3);border-radius:4px;">
+        <div class="title-sm">${monster.name}</div>
+        <div class="title-sm">血量 ${Math.max(0, monster.hp)}/${monster.maxHp}</div>
+        <div class="bar hp-bar" style="height:14px;">
+          <div style="width:${pct}%;background:linear-gradient(180deg,#e91e63,#8a0a30);"></div>
+        </div>
+        <div class="title-sm">攻击 ${monster.atk}</div>
+      </div>
+    `;
+  },
 };
 
 

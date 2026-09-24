@@ -103,7 +103,7 @@ const MAIN_TABS = {
   social: {
     name: '社交',
     icon: '🏆',
-    subtabs: ['rank', 'boss', 'monster'],
+    subtabs: ['rank', 'boss', 'dungeon', 'monster'],
     default: 'rank'
   },
   shop: {
@@ -127,6 +127,7 @@ const SUBTAB_NAMES = {
   skill: '技能',
   rank: '排行',
   boss: 'BOSS',
+  dungeon: '副本',
   monster: '图鉴',
   shop: '商店',
   daily: '每日',
@@ -196,6 +197,7 @@ function switchSubTab(subTab, force) {
   if (subTab === 'skill') Skill.refresh(state);
   if (subTab === 'rank') Rank.refresh(state);
   if (subTab === 'boss' && typeof Boss !== 'undefined' && !Boss.currentBoss) Boss.refresh(state);
+  if (tabName === 'dungeon' && typeof Dungeon !== 'undefined' && !Dungeon.currentDungeon) Dungeon.refresh(state);
   if (subTab === 'monster') Monster.refresh(state);
   if (subTab === 'shop') Shop.refresh(state);
   if (subTab === 'daily') Daily.refresh(state);
@@ -203,6 +205,7 @@ function switchSubTab(subTab, force) {
   if (subTab === 'achievement') Achievement.refresh(state);
   if (subTab === 'stats') Stats.refresh(state);
   if (subTab === 'settings') Settings.refresh();
+  
 }
 
 // 兼容旧代码：switchTab 仍可用
