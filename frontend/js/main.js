@@ -197,7 +197,7 @@ function switchSubTab(subTab, force) {
   if (subTab === 'skill') Skill.refresh(state);
   if (subTab === 'rank') Rank.refresh(state);
   if (subTab === 'boss' && typeof Boss !== 'undefined' && !Boss.currentBoss) Boss.refresh(state);
-  if (tabName === 'dungeon' && typeof Dungeon !== 'undefined' && !Dungeon.currentDungeon) Dungeon.refresh(state);
+  if (subTab === 'dungeon' && typeof Dungeon !== 'undefined' && !Dungeon.currentDungeon) Dungeon.refresh(state);
   if (subTab === 'monster') Monster.refresh(state);
   if (subTab === 'shop') Shop.refresh(state);
   if (subTab === 'daily') Daily.refresh(state);
