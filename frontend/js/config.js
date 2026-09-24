@@ -61,7 +61,7 @@ settings: {
 
   monster: {
     tierSize: 5, baseHp: 30, baseAtk: 3,
-    hpPerTier: 150, atkPerTier: 20,
+    hpPerTier: 150, atkPerTier: 10,
     eliteMultiplier: { hp: 3, atk: 1.5, crit: 0.1 },
     bossMultiplier:  { hp: 10, atk: 2, crit: 0.2 }
   },
