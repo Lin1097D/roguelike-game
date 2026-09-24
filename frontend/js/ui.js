@@ -446,6 +446,52 @@ const UI = {
       </div>
     `;
   },
+  renderSkills(skills, learned, skillPoints) {
+    const el = document.getElementById('skillList');
+    if (!el) return;
+  
+    const header = document.getElementById('skillHeader');
+    if (header) {
+      header.innerHTML = `
+        <div class="skill-header">
+          <span>可用技能点：<b style="color:#d4af37">${skillPoints}</b></span>
+        </div>
+      `;
+    }
+  
+    const routes = { atk: '⚔️ 攻击', def: '🛡️ 防御', util: '✨ 辅助' };
+  
+    el.innerHTML = ['atk', 'def', 'util'].map(route => {
+      const routeSkills = skills.filter(s => s.route === route);
+      return `
+        <div class="skill-route">
+          <div class="skill-route-title">${routes[route]}</div>
+          ${routeSkills.map(s => {
+            const curLevel = learned[s.key] || 0;
+            const isMax = curLevel >= s.max;
+            const needSkill = s.need ? skills.find(x => x.key === s.need) : null;
+            const needOk = !s.need || (learned[s.need] || 0) >= needSkill.max;
+            const canLearn = !isMax && skillPoints > 0 && needOk;
+            const btnText = isMax ? '已满级' 
+                           : !needOk ? '未解锁'
+                           : canLearn ? '升级' 
+                           : '技能点不足';
+            return `
+              <div class="skill-item ${curLevel > 0 ? 'learned' : ''}">
+                <div class="skill-info">
+                  <div class="skill-name">${s.name} <span style="color:#d4af37">${curLevel}/${s.max}</span></div>
+                  <div class="skill-desc">${s.desc}</div>
+                </div>
+                <button class="btn skill-btn" 
+                  ${canLearn ? '' : 'disabled'} 
+                  onclick="onLearnSkill('${s.key}')">${btnText}</button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }).join('');
+  },
 };
 
 

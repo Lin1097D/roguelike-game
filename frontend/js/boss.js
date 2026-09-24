@@ -2,6 +2,7 @@ const Boss = {
   currentBoss: null,
   currentBossHp: 0,
   currentBossMaxHp: 0,
+  bossTimer: null,
 
   async refresh(state) {
     const r = await API.getBossList(state.userId);
@@ -14,35 +15,36 @@ const Boss = {
   },
 
   async start(state, bossKey) {
+    // 先停掉旧的自动战斗
+    this.stopAuto();
+
     let useGold = false;
     if (state.bossRemaining <= 0) {
       const msg = `今日免费次数已用完，花 ${state.bossExtraCost} 金币挑战？`;
       if (!confirm(msg)) return;
       useGold = true;
     }
-  
+
     const r = await API.startBossChallenge(state.userId, bossKey, useGold);
     if (r.code !== 0) {
       UI.log('挑战失败：' + r.msg, 'bad');
       return;
     }
-  
+
     // 进入挑战
     this.currentBoss = r.boss;
     this.currentBossHp = r.boss.hp;
     this.currentBossMaxHp = r.boss.hp;
-  
+
     // 切换到 BOSS 标签
     switchTab('boss');
-  
+
     UI.renderBossBattle(r.boss, this.currentBossHp, this.currentBossMaxHp);
     UI.log(`⚔️ 开始挑战【${r.boss.name}】！`, 'boss');
-  
+
     if (r.useExtra) {
       UI.log(`花费 ${r.extraCost} 金币`, 'normal');
     }
-  
-    await Boss.refresh(state);
   },
 
   async attack(state) {
@@ -87,26 +89,39 @@ const Boss = {
     }
   },
 
-  async win(state) {
-    UI.log(`🎉 击败了【${this.currentBoss.name}】！`, 'drop');
-    const r = await API.finishBossChallenge(state.userId, this.currentBoss.key, true);
-    if (r.code === 0 && r.win) {
-      const rw = r.reward;
-      let msg = '奖励：';
-      if (rw.gold) msg += `💰${rw.gold} `;
-      if (rw.soul) msg += `💀${rw.soul} `;
-      if (rw.points) msg += `⭐${rw.points}`;
-      UI.log(msg, 'drop');
-      Sound.play('levelup');
-    }
-    this.currentBoss = null;
-    setTimeout(() => {
-      UI.renderBossList([], state.bossRemaining, state.bossDailyFree, state.bossExtraCost);
-      Boss.refresh(state);
-    }, 2000);
-  },
+	async win(state) {
+	  // 停掉自动战斗
+	  this.stopAuto();
+
+	  UI.log(`🎉 击败了【${this.currentBoss.name}】！`, 'drop');
+	  const r = await API.finishBossChallenge(state.userId, this.currentBoss.key, true);
+	  if (r.code === 0 && r.win) {
+		const rw = r.reward;
+		let msg = '奖励：';
+		if (rw.gold) msg += `💰${rw.gold} `;
+		if (rw.soul) msg += `💀${rw.soul} `;
+		if (rw.points) msg += `⭐${rw.points}`;
+		UI.log(msg, 'drop');
+		Sound.play('levelup');
+
+		// 刷新存档（金币、灵魂、自由点）
+		const sr = await API.getSave(state.userId);
+		if (sr.code === 0) {
+		  state.save = sr.data;
+		  UI.renderPlayer(state.save);
+		}
+	  }
+	  this.currentBoss = null;
+	  setTimeout(() => {
+		UI.renderBossList([], state.bossRemaining, state.bossDailyFree, state.bossExtraCost);
+		Boss.refresh(state);
+	  }, 2000);
+	},
 
   async lose(state) {
+    // 停掉自动战斗
+    this.stopAuto();
+
     UI.log(`💀 被【${this.currentBoss.name}】击败`, 'bad');
     await API.finishBossChallenge(state.userId, this.currentBoss.key, false);
     this.currentBoss = null;

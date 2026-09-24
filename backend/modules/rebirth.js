@@ -27,6 +27,8 @@ router.post('/do', async (req, res) => {
         base_crit_rate=0.05, base_dodge_rate=0.03,
         kill_count=0, elite_count=0, boss_count=0, gold=0,
         jieli=0, level=1, exp=0, free_points=0,
+		skill_points = skill_points + 10,
+		total_skill_points = total_skill_points + 10,
         rebirth_count=?, rebirth_points=?,
         updated_at=NOW()
        WHERE user_id=?`,

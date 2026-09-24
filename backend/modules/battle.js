@@ -9,6 +9,14 @@ function expNeed(level) {
   return Math.floor(100 * level * Math.pow(1.2, level - 1));
 }
 
+function checkSkillPoints(oldLevel, newLevel) {
+  let points = 0;
+  for (let lv = oldLevel + 1; lv <= newLevel; lv++) {
+    if (lv % 5 === 0) points += 1;
+  }
+  return points;
+}
+
 // 击杀怪物
 router.post('/kill', async (req, res) => {
   const { userId, monsterType, damage, monsterName } = req.body;
@@ -56,6 +64,7 @@ router.post('/kill', async (req, res) => {
 
     const levelUp = newLevel > (s.level || 1);
     const talentBonus = await stats.getTalentBonus(userId);
+	const skillPointsGain = checkSkillPoints(s.level || 1, newLevel);
 
     await pool.query(
       `UPDATE save SET 
@@ -66,6 +75,8 @@ router.post('/kill', async (req, res) => {
         gold = gold + ?, jieli = ?,
         level = ?, exp = ?, free_points = free_points + ?,
         daily_kill = daily_kill + 1,
+		skill_points = skill_points + ?,
+		total_skill_points = total_skill_points + ?,
         total_damage = total_damage + ?,
         updated_at = NOW()
        WHERE user_id = ?`,
@@ -73,6 +84,7 @@ router.post('/kill', async (req, res) => {
        reward.mp, reward.mp, heal.mp,
        newKill, newElite, newBoss, goldGain, newJieli,
        newLevel, newExp, freePointsGain,
+	   skillPointsGain, skillPointsGain,
        damage || 0,
        userId]
     );

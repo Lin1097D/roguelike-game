@@ -70,4 +70,8 @@ const API = {
   getBossList: (userId) => API.request('/boss/' + userId),
   startBossChallenge: (userId, bossKey, useGold) => API.request('/boss/start', 'POST', { userId, bossKey, useGold }),
   finishBossChallenge: (userId, bossKey, win) => API.request('/boss/finish', 'POST', { userId, bossKey, win }),
+  
+  // 技能
+  getSkills: (userId) => API.request('/skill/' + userId),
+  learnSkill: (userId, skillKey) => API.request('/skill/learn', 'POST', { userId, skillKey }),
 };

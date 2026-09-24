@@ -1,5 +1,6 @@
 const pool = require('../db');
 const config = require('../config/gameConfig');
+const { SKILLS } = require('../config/skills');
 
 function calcEquipmentBonus(equipmentList) {
   const bonus = { atk: 0, max_hp: 0, max_mp: 0, crit_rate: 0, dodge_rate: 0, drain: 0, goldPct: 0 };
@@ -101,6 +102,23 @@ function calcTalentBonus(talentList, baseStats) {
   return bonus;
 }
 
+async function calcSkillBonus(userId) {
+  const [rows] = await pool.query('SELECT skill_key, level FROM skill WHERE user_id=?', [userId]);
+  const bonus = {
+    atkPct: 0, crit: 0, critDmg: 0, pierce: 0, lethal: 0,
+    hpPct: 0, dodge: 0, regen: 0, thorns: 0, revive: 0,
+    goldPct: 0, expPct: 0, dropPct: 0, drain: 0, talentPct: 0
+  };
+  for (const row of rows) {
+    const skill = SKILLS.find(s => s.key === row.skill_key);
+    if (!skill) continue;
+    for (const key in skill.effect) {
+      bonus[key] = (bonus[key] || 0) + skill.effect[key] * row.level;
+    }
+  }
+  return bonus;
+}
+
 async function recalcAndSave(userId) {
   const [saveRows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
   if (saveRows.length === 0) return null;
@@ -117,18 +135,28 @@ async function recalcAndSave(userId) {
 
   const eqBonus = calcEquipmentBonus(eqRows);
   const tBonus = calcTalentBonus(talentRows, s);
+  const skBonus = await calcSkillBonus(userId);
 
-  // 转生加成：每点 +1%
+  const atkPct = skBonus.atkPct || 0;
+  const hpPct = skBonus.hpPct || 0;
+  const critAdd = skBonus.crit || 0;
+  const dodgeAdd = skBonus.dodge || 0;
+  const drainAdd = skBonus.drain || 0;
+  const goldPctAdd = skBonus.goldPct || 0;
+
   const rebirthMult = 1 + (s.rebirth_points || 0) * 0.01;
 
-  const finalAtk = Math.floor((s.base_atk + eqBonus.atk + tBonus.atk) * rebirthMult);
-  const finalMaxHp = Math.floor((s.base_max_hp + eqBonus.max_hp + tBonus.max_hp) * rebirthMult);
-  const finalMaxMp = Math.floor((s.base_max_mp + eqBonus.max_mp + tBonus.max_mp) * rebirthMult);
-  const finalCrit = Math.round((s.base_crit_rate + eqBonus.crit_rate + tBonus.crit_rate) * 1000) / 1000;
-  const finalDodge = Math.round((s.base_dodge_rate + eqBonus.dodge_rate + tBonus.dodge_rate) * 1000) / 1000;
+  const baseAtk = s.base_atk + eqBonus.atk + tBonus.atk;
+  const baseHp = s.base_max_hp + eqBonus.max_hp + tBonus.max_hp;
+  const baseMp = s.base_max_mp + eqBonus.max_mp + tBonus.max_mp;
 
-  const finalDrain = Math.round((eqBonus.drain + tBonus.drain) * 1000) / 1000;
-  const finalGoldBonus = Math.round((eqBonus.goldPct + tBonus.goldPct) * 1000) / 1000;
+  const finalAtk = Math.floor(baseAtk * (1 + atkPct) * rebirthMult);
+  const finalMaxHp = Math.floor(baseHp * (1 + hpPct) * rebirthMult);
+  const finalMaxMp = Math.floor(baseMp * rebirthMult);
+  const finalCrit = Math.round((s.base_crit_rate + eqBonus.crit_rate + tBonus.crit_rate + critAdd) * 1000) / 1000;
+  const finalDodge = Math.round((s.base_dodge_rate + eqBonus.dodge_rate + tBonus.dodge_rate + dodgeAdd) * 1000) / 1000;
+  const finalDrain = Math.round((eqBonus.drain + tBonus.drain + drainAdd) * 1000) / 1000;
+  const finalGoldBonus = Math.round((eqBonus.goldPct + tBonus.goldPct + goldPctAdd) * 1000) / 1000;
 
   const finalHp = Math.min(s.hp, finalMaxHp);
   const finalMp = Math.min(s.mp, finalMaxMp);
@@ -143,8 +171,6 @@ async function recalcAndSave(userId) {
      finalDrain, finalGoldBonus,
      finalHp, finalMp, userId]
   );
-// 更新每日任务进度
-await pool.query('UPDATE save SET daily_kill = daily_kill + 1 WHERE user_id=?', [userId]);
 
   const [newRows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
   return newRows[0];
@@ -160,4 +186,4 @@ async function getTalentBonus(userId) {
   return calcTalentBonus(talentRows, saveRows[0]);
 }
 
-module.exports = { calcEquipmentBonus, calcTalentBonus, recalcAndSave, getTalentBonus };
+module.exports = { calcEquipmentBonus, calcTalentBonus, calcSkillBonus, recalcAndSave, getTalentBonus };

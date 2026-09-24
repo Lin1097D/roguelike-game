@@ -19,6 +19,7 @@ const rankRouter = require('./modules/rank');
 const statisticsRouter = require('./modules/statistics');
 const monsterRouter = require('./modules/monster');
 const bossRouter = require('./modules/boss');
+const skillRouter = require('./modules/skill');
 
 const app = express();
 app.use(cors());
@@ -39,6 +40,7 @@ app.use('/api/rank', rankRouter);
 app.use('/api/stats', statisticsRouter);
 app.use('/api/monster', monsterRouter);
 app.use('/api/boss', bossRouter);
+app.use('/api/skill', skillRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {

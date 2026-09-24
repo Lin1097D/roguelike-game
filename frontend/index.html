@@ -53,6 +53,7 @@
       <div class="tab" data-tab="stats" onclick="switchTab('stats')">📊 统计</div>
       <div class="tab" data-tab="monster" onclick="switchTab('monster')">📖 图鉴</div>
 	  <div class="tab" data-tab="boss" onclick="switchTab('boss')">👹 BOSS</div>
+	  <div class="tab" data-tab="skill" onclick="switchTab('skill')">🌟 技能</div>
     </div>
 
     <div class="tab-content">
@@ -159,6 +160,12 @@
 	    <div id="bossHeader"></div>
 	    <div id="bossList" class="boss-list"></div>
 	  </div>
+	  
+	  <div class="tab-pane" id="tab-skill">
+	    <div class="equipment-title">🌟 技能树</div>
+	    <div id="skillHeader"></div>
+	    <div id="skillList" class="skill-list"></div>
+	  </div>
     </div>
   </div>
 </div>
@@ -178,5 +185,6 @@
 <script src="js/battle.js"></script>
 <script src="js/main.js"></script>
 <script src="js/boss.js"></script>
+<script src="js/skill.js"></script>
 </body>
 </html>

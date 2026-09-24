@@ -71,6 +71,7 @@ async function doLogin() {
 
 function logout() {
   Battle.stopAuto();
+  if (typeof Boss !== 'undefined') Boss.stopAuto();
   stopPolling();
   stopPlaytimeTimer();
   state.userId = null; state.save = null; state.equipped = {}; state.bag = []; state.talents = [];
@@ -82,12 +83,18 @@ function logout() {
 
 // ============ 标签切换 ============
 function switchTab(tabName) {
+  // 切走 BOSS 标签，停止 BOSS 自动战斗
+  if (tabName !== 'boss' && typeof Boss !== 'undefined' && Boss.bossTimer) {
+    Boss.stopAuto();
+  }
+
   document.querySelectorAll('.tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tabName);
   });
   document.querySelectorAll('.tab-pane').forEach(p => {
     p.classList.toggle('active', p.id === 'tab-' + tabName);
   });
+
   if (tabName === 'bag') Equipment.refresh(state);
   if (tabName === 'talent') Talent.refresh(state);
   if (tabName === 'shop') Shop.refresh(state);
@@ -97,7 +104,8 @@ function switchTab(tabName) {
   if (tabName === 'rank') Rank.refresh(state);
   if (tabName === 'stats') Stats.refresh(state);
   if (tabName === 'monster') Monster.refresh(state);
-  if (tabName === 'boss') Boss.refresh(state);
+  if (tabName === 'boss' && typeof Boss !== 'undefined' && !Boss.currentBoss) Boss.refresh(state);
+  if (tabName === 'skill') Skill.refresh(state);
 }
 
 // ============ 战斗速度 ============

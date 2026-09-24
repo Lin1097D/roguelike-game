@@ -989,3 +989,68 @@ button, .tab, .btn {
   margin-bottom: 10px;
   text-shadow: 0 0 10px rgba(233, 30, 99, 0.8);
 }
+
+/* 技能树 */
+.skill-header {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid #5a4a20;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.skill-route {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 10px;
+}
+.skill-route-title {
+  color: #d4af37;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #5a4a20;
+}
+.skill-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #2a2015;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 6px;
+}
+.skill-item.learned {
+  border-color: #5a4a20;
+  background: rgba(212, 175, 55, 0.05);
+}
+.skill-info { flex: 1; }
+.skill-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #e8dcc0;
+  margin-bottom: 2px;
+}
+.skill-desc {
+  font-size: 11px;
+  color: #b8a878;
+}
+.skill-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-width: 70px;
+}
+.skill-btn:disabled {
+  background: #2a2418;
+  color: #5a4a20;
+  cursor: not-allowed;
+}
