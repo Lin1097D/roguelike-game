@@ -417,7 +417,9 @@ const UI = {
     el.innerHTML = bosses.map(b => `
       <div class="boss-item">
         <div class="boss-name">${b.name}</div>
-        <div class="boss-info">HP ${b.hp} · 攻击 ${b.atk}</div>
+        <div class="boss-info">
+          血量 ${b.hp} · 攻击 ${b.atk} · 暴击 ${((b.crit || 0.05) * 100).toFixed(0)}%
+        </div>
         <div class="boss-reward">
           奖励：💰${b.reward.gold}
           ${b.reward.soul ? ` 💀${b.reward.soul}` : ''}
@@ -439,7 +441,12 @@ const UI = {
         <div class="bar hp-bar" style="height:20px;">
           <div style="width:${pct}%;background:linear-gradient(180deg,#e91e63,#8a0a30);box-shadow:0 0 8px rgba(233,30,99,0.6);"></div>
         </div>
-        <div class="title-sm">攻击 ${boss.atk}</div>
+        <div class="title-sm">攻击 ${boss.atk} · 暴击 ${((boss.crit || 0.05) * 100).toFixed(0)}%</div>
+        <div class="title-sm" style="color:#d4af37;margin-top:6px;">
+          奖励：💰${boss.reward.gold}
+          ${boss.reward.soul ? ` 💀${boss.reward.soul}` : ''}
+          ${boss.reward.points ? ` ⭐${boss.reward.points}` : ''}
+        </div>
         <div style="text-align:center;margin-top:10px;">
           <button class="btn" onclick="onBossAuto()" id="btnBossAuto" style="padding:6px 16px;">自动挑战</button>
         </div>

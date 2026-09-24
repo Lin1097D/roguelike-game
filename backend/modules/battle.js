@@ -183,7 +183,8 @@ router.post('/kill', async (req, res) => {
       drop: droppedEquipment,
       discarded: discardedEquipment,
       bagFull,
-      levelUp: levelUp ? { newLevel, freePointsGain } : null
+      levelUp: levelUp ? { newLevel, freePointsGain } : null,
+	  expGain: expGain
     });
   } catch (e) {
     res.json({ code: 1, msg: e.message });

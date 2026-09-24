@@ -192,10 +192,9 @@ const Battle = {
 
   async onKill(state) {
     const m = this.currentMonster;
-    UI.log(`击杀 ${m.name}！`, m.type === 'normal' ? 'good' : m.type);
-    Sound.play('kill');
-
+	ound.play('kill');
     const r = await API.kill(state.userId, m.type, this.lastDamage || 0, m.name);
+	UI.log(`击杀 ${m.name}！`, m.type === 'normal' ? 'good' : m.type);UI.log(`击杀 ${m.name}！+${r.expGain || 0} 经验`, m.type === 'normal' ? 'good' : m.type);
     if (r.code === 0) {
       state.save = { ...state.save, ...r.data };
       const sr = await API.getSave(state.userId);

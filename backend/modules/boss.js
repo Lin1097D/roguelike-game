@@ -3,11 +3,11 @@ const router = express.Router();
 const pool = require('../db');
 
 const BOSS_LIST = [
-  { key: 'lava',   name: '熔岩巨人', hp: 10000,  atk: 500,   reward: { gold: 5000,   soul: 20,   points: 0 } },
-  { key: 'ice',    name: '冰霜巨龙', hp: 30000,  atk: 1500,  reward: { gold: 15000,  soul: 50,   points: 5 } },
-  { key: 'void',   name: '虚空领主', hp: 80000,  atk: 4000,  reward: { gold: 50000,  soul: 150,  points: 15 } },
-  { key: 'abyss',  name: '深渊魔王', hp: 200000, atk: 10000, reward: { gold: 150000, soul: 500,  points: 50 } },
-  { key: 'chaos',  name: '混沌之神', hp: 500000, atk: 25000, reward: { gold: 500000, soul: 2000, points: 200 } }
+  { key: 'lava',   name: '熔岩巨人', hp: 10000,  atk: 500, crit: 0.05,  reward: { gold: 5000,   soul: 20,   points: 0 } },
+  { key: 'ice',    name: '冰霜巨龙', hp: 30000,  atk: 1500, crit: 0.1, reward: { gold: 15000,  soul: 50,   points: 5 } },
+  { key: 'void',   name: '虚空领主', hp: 80000,  atk: 4000, crit: 0.15, reward: { gold: 50000,  soul: 150,  points: 15 } },
+  { key: 'abyss',  name: '深渊魔王', hp: 200000, atk: 10000, crit: 0.2, reward: { gold: 150000, soul: 500,  points: 50 } },
+  { key: 'chaos',  name: '混沌之神', hp: 500000, atk: 25000, crit: 0.25, reward: { gold: 500000, soul: 2000, points: 200 } }
 ];
 
 const DAILY_FREE = 3;
