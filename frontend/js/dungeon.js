@@ -6,6 +6,7 @@ const Dungeon = {
   timeLeft: 0,
   timer: null,
   attacking: false,
+  autoTimer: null,
 
   async refresh(state) {
     const r = await API.getDungeonList(state.userId);
@@ -19,6 +20,7 @@ const Dungeon = {
 
   async start(state, dungeonKey) {
     this.stopTimer();
+    this.stopAuto();
 
     let useGold = false;
     if (state.dungeonRemaining <= 0) {
@@ -51,16 +53,13 @@ const Dungeon = {
       }
     }
 
-    // 生成第一只怪
     this.spawnDungeonMonster(state);
-    // 启动计时
     this.startTimer(state);
   },
 
   spawnDungeonMonster(state) {
     const d = this.currentDungeon;
     if (!d) return;
-    // 随机在副本怪属性 ±20% 浮动
     const hp = Math.floor(d.monsterHp * (0.8 + Math.random() * 0.4));
     this.currentMonster = {
       name: '副本怪 ' + (this.killed + 1),
@@ -89,6 +88,16 @@ const Dungeon = {
     }
   },
 
+  stopAuto() {
+    this.attacking = false;
+    if (this.autoTimer) {
+      clearInterval(this.autoTimer);
+      this.autoTimer = null;
+    }
+    const btn = document.getElementById('btnDungeonAuto');
+    if (btn) btn.textContent = '自动挑战';
+  },
+
   async attack(state) {
     if (!this.currentMonster || this.currentMonster.hp <= 0) return;
     if (this.timeLeft <= 0) return;
@@ -100,12 +109,10 @@ const Dungeon = {
     if (this.currentMonster.hp <= 0) {
       this.killed++;
       if (this.killed >= this.totalMonsters) {
-        // 通关
         this.stopTimer();
         await this.win(state);
         return;
       }
-      // 下一只
       this.spawnDungeonMonster(state);
     } else {
       UI.renderDungeonMonster(this.currentMonster, this.killed, this.totalMonsters, this.timeLeft);
@@ -119,6 +126,7 @@ const Dungeon = {
       UI.renderPlayer(state.save);
       if (r2.dead) {
         this.stopTimer();
+        this.stopAuto();
         await this.lose(state);
         return;
       }
@@ -127,7 +135,7 @@ const Dungeon = {
 
   async win(state) {
     this.stopTimer();
-    this.attacking = false;
+    this.stopAuto();
     UI.log(`🏆 通关副本【${this.currentDungeon.name}】！`, 'drop');
 
     const r = await API.finishDungeon(state.userId, this.currentDungeon.key, true, this.killed);
@@ -154,10 +162,20 @@ const Dungeon = {
 
   async lose(state) {
     this.stopTimer();
-    this.attacking = false;
+    this.stopAuto();
     UI.log(`💀 副本失败！`, 'bad');
 
+    // 副本结算
     await API.finishDungeon(state.userId, this.currentDungeon.key, false, this.killed);
+
+    // 死亡复活（关键）
+    const revive = await API.revive(state.userId);
+    if (revive.code === 0) {
+      state.save = revive.data;
+      state.save.soul = revive.soul;
+      UI.renderPlayer(state.save);
+      UI.log(`💀 你死了，属性清零`, 'bad');
+    }
 
     this.currentDungeon = null;
     this.currentMonster = null;
@@ -166,15 +184,13 @@ const Dungeon = {
 
   async autoFight(state) {
     if (this.attacking) {
-      this.attacking = false;
-      clearInterval(this.autoTimer);
-      document.getElementById('btnDungeonAuto').textContent = '自动挑战';
+      this.stopAuto();
       return;
     }
     this.attacking = true;
     document.getElementById('btnDungeonAuto').textContent = '停止挑战';
     this.autoTimer = setInterval(() => {
-      if (this.currentDungeon && this.currentMonster && this.currentMonster.hp > 0 && this.timeLeft > 0) {
+      if (this.currentDungeon && this.currentMonster && this.currentMonster.hp > 0 && this.timeLeft > 0 && state.save.hp > 0) {
         this.attack(state);
       }
     }, 500);
