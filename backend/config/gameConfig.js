@@ -120,9 +120,9 @@ module.exports = {
   level: {
     maxLevel: 100,
     expPerKill: {
-      normal: 10,
-      elite: 50,
-      boss: 200
+      normal: 100,
+      elite: 500,
+      boss: 2000
     },
     pointsPerLevel: 3,
     bonusEvery10: 10,
