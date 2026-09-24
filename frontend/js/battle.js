@@ -36,7 +36,7 @@ const Battle = {
     else if (next % CONFIG.spawn.eliteEvery === 0) type = 'elite';
 
     this.currentMonster = this.makeMonster(type, save);
-    this.lastDamage = 0;   // 重置累计伤害
+    this.lastDamage = 0;
     UI.renderMonster(this.currentMonster);
 
     if (type === 'elite') UI.log('⚡ 精英怪出现：' + this.currentMonster.name, 'elite');
@@ -85,8 +85,12 @@ const Battle = {
     const m = this.currentMonster;
     if (!m || m.hp <= 0) return;
 
-    // 自动治疗
+    // ============ 自动技能 ============
     const hpPercent = state.save.hp / state.save.max_hp;
+    const isBoss = m.type === 'boss';
+    const isElite = m.type === 'elite';
+
+    // 1. 自动治疗
     const healSkill = CONFIG.skills.heal;
     if (CONFIG.settings.autoHeal && hpPercent < 0.6 && state.save.mp >= healSkill.cost) {
       const mr = await API.useMp(state.userId, healSkill.cost);
@@ -95,12 +99,91 @@ const Battle = {
         const healAmt = Math.floor(state.save.max_hp * 0.2);
         const hr = await API.heal(state.userId, healAmt, 0);
         if (hr.code === 0) state.save = { ...state.save, ...hr.data };
-        UI.log(`💚 [自动] 血量过低，治疗回复 ${healAmt} 点`, 'good');
+        UI.log(`💚 [自动] 治疗回复 ${healAmt} 点`, 'good');
         UI.renderPlayer(state.save);
       }
     }
 
-    // 玩家攻击
+    // 2. 自动狂暴
+    const rageSkill = CONFIG.skills.rage;
+    if (CONFIG.settings.autoRage && isBoss && this.rageTurns === 0 && state.save.mp >= rageSkill.cost) {
+      const mr = await API.useMp(state.userId, rageSkill.cost);
+      if (mr.code === 0) {
+        state.save.mp -= rageSkill.cost;
+        this.rageTurns = 3;
+        UI.log(`🔥 [自动] 狂暴！3 回合攻击 +50%`, 'good');
+        UI.renderPlayer(state.save);
+      }
+    }
+
+    // 3. 自动重击
+    const heavySkill = CONFIG.skills.heavy;
+    if (CONFIG.settings.autoHeavy && (isBoss || isElite) && state.save.mp >= heavySkill.cost) {
+      const mr = await API.useMp(state.userId, heavySkill.cost);
+      if (mr.code === 0) {
+        state.save.mp -= heavySkill.cost;
+        let playerAtk = state.save.atk;
+        if (this.rageTurns > 0) playerAtk = Math.floor(playerAtk * 1.5);
+        const { dmg, isCrit } = this.calcDamage(
+          Math.floor(playerAtk * heavySkill.mult),
+          state.save.crit_rate,
+          state.save.jieli || 0,
+          state.talents || [],
+          state.save.hp,
+          state.save.max_hp
+        );
+        m.hp -= dmg;
+        this.lastDamage += dmg;
+        UI.log(`💥 [自动] 重击造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
+        if (CONFIG.settings.showDamage) showDamageNumber(dmg, isCrit);
+        Sound.play('attack');
+        UI.renderPlayer(state.save);
+
+        if (m.hp <= 0) {
+          m.hp = 0;
+          UI.renderMonster(m);
+          await this.onKill(state);
+          return;
+        }
+        UI.renderMonster(m);
+      }
+    }
+
+    // 4. 自动吸血
+    const drainSkill = CONFIG.skills.drain;
+    if (CONFIG.settings.autoDrain && hpPercent < 0.8 && hpPercent >= 0.6 && state.save.mp >= drainSkill.cost) {
+      const mr = await API.useMp(state.userId, drainSkill.cost);
+      if (mr.code === 0) {
+        state.save.mp -= drainSkill.cost;
+        const { dmg } = this.calcDamage(
+          Math.floor(state.save.atk * drainSkill.mult),
+          state.save.crit_rate,
+          state.save.jieli || 0,
+          state.talents || [],
+          state.save.hp,
+          state.save.max_hp
+        );
+        m.hp -= dmg;
+        this.lastDamage += dmg;
+        const healAmt = Math.floor(dmg * 0.3);
+        const hr = await API.heal(state.userId, healAmt, 0);
+        if (hr.code === 0) state.save = { ...state.save, ...hr.data };
+        UI.log(`🩸 [自动] 吸血造成 ${dmg} 伤害，回复 ${healAmt} 血量`, 'good');
+        if (CONFIG.settings.showDamage) showDamageNumber(dmg, false);
+        Sound.play('attack');
+        UI.renderPlayer(state.save);
+
+        if (m.hp <= 0) {
+          m.hp = 0;
+          UI.renderMonster(m);
+          await this.onKill(state);
+          return;
+        }
+        UI.renderMonster(m);
+      }
+    }
+
+    // ============ 玩家普通攻击 ============
     let playerAtk = state.save.atk;
     if (this.rageTurns > 0) playerAtk = Math.floor(playerAtk * 1.5);
 
@@ -113,7 +196,7 @@ const Battle = {
       state.save.max_hp
     );
     m.hp -= dmg;
-    this.lastDamage += dmg;   // 累加伤害
+    this.lastDamage += dmg;
     UI.log(`你造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
 
     Sound.play('attack');
@@ -147,7 +230,7 @@ const Battle = {
           state.talents || [], state.save.hp, state.save.max_hp
         );
         m.hp -= second.dmg;
-        this.lastDamage += second.dmg;   // 累加伤害
+        this.lastDamage += second.dmg;
         UI.log(`⚡ 连击！额外造成 ${second.dmg} 点伤害${second.isCrit ? ' (暴击!)' : ''}`, 'good');
         if (CONFIG.settings.showDamage) showDamageNumber(second.dmg, second.isCrit);
       }
@@ -192,9 +275,12 @@ const Battle = {
 
   async onKill(state) {
     const m = this.currentMonster;
-	Sound.play('kill');
+    Sound.play('kill');
+
     const r = await API.kill(state.userId, m.type, this.lastDamage || 0, m.name);
-	UI.log(`击杀 ${m.name}！`, m.type === 'normal' ? 'good' : m.type);UI.log(`击杀 ${m.name}！+${r.expGain || 0} 经验`, m.type === 'normal' ? 'good' : m.type);
+
+    UI.log(`击杀 ${m.name}！+${r.expGain || 0} 经验`, m.type === 'normal' ? 'good' : m.type);
+
     if (r.code === 0) {
       state.save = { ...state.save, ...r.data };
       const sr = await API.getSave(state.userId);
@@ -284,7 +370,7 @@ const Battle = {
         state.save.max_hp
       );
       this.currentMonster.hp -= dmg;
-      this.lastDamage += dmg;   // 累加伤害
+      this.lastDamage += dmg;
       UI.log(`💥 重击造成 ${dmg} 点伤害${isCrit ? ' (暴击!)' : ''}`, 'good');
       showDamageNumber(dmg, isCrit);
       Sound.play('attack');
@@ -304,7 +390,7 @@ const Battle = {
         state.save.max_hp
       );
       this.currentMonster.hp -= dmg;
-      this.lastDamage += dmg;   // 累加伤害
+      this.lastDamage += dmg;
       const healAmt = Math.floor(dmg * 0.3);
       const hr = await API.heal(state.userId, healAmt, 0);
       if (hr.code === 0) state.save = { ...state.save, ...hr.data };

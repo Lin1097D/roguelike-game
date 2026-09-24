@@ -11,12 +11,15 @@ const CONFIG = {
   soundEnabled: true,
 
 settings: {
-    soundEnabled: true,
-    battleSpeed: 1,
-    autoHeal: true,
-    autoDouble: false,
-    showDamage: true
-  },
+  soundEnabled: true,
+  battleSpeed: 1,
+  autoHeal: true,
+  autoHeavy: true,
+  autoDrain: true,
+  autoRage: true,
+  autoDouble: false,
+  showDamage: true
+}
 
   skills: {
     heavy: { cost: 8, mult: 2.0, name: '重击' },

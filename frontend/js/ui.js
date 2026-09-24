@@ -532,6 +532,33 @@ const UI = {
           </label>
         </div>
       </div>
+	  <div class="setting-item">
+	    <div class="setting-label">⚡ 自动狂暴</div>
+	    <div class="setting-control">
+	      <label class="switch">
+	        <input type="checkbox" ${settings.autoRage ? 'checked' : ''} onchange="onSettingToggle('autoRage')">
+	        <span class="slider"></span>
+	      </label>
+	    </div>
+	  </div>
+	  <div class="setting-item">
+	    <div class="setting-label">💥 自动重击</div>
+	    <div class="setting-control">
+	      <label class="switch">
+	        <input type="checkbox" ${settings.autoHeavy ? 'checked' : ''} onchange="onSettingToggle('autoHeavy')">
+	        <span class="slider"></span>
+	      </label>
+	    </div>
+	  </div>
+	  <div class="setting-item">
+	    <div class="setting-label">🩸 自动吸血</div>
+	    <div class="setting-control">
+	      <label class="switch">
+	        <input type="checkbox" ${settings.autoDrain ? 'checked' : ''} onchange="onSettingToggle('autoDrain')">
+	        <span class="slider"></span>
+	      </label>
+	    </div>
+	  </div>
       <div class="setting-item">
         <div class="setting-label">💥 显示伤害数字</div>
         <div class="setting-control">
