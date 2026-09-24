@@ -19,7 +19,7 @@ settings: {
   autoRage: true,
   autoDouble: false,
   showDamage: true
-}
+},
 
   skills: {
     heavy: { cost: 8, mult: 2.0, name: '重击' },
