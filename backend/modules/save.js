@@ -20,13 +20,14 @@ router.get('/:userId', async (req, res) => {
       const diffHours = diffMs / 1000 / 60 / 60;
 
       if (diffHours >= 0.1) {
-        const cappedHours = Math.min(diffHours, 24);
+        // 去掉 24 小时上限
+        const hours = diffHours;
 
-        const goldPerHour = (config.goldGain.baseNormal + 10000 * config.goldGain.perKill) * 100;
-        const expPerHour = config.level.expPerKill.normal * 10000;
+        const goldPerHour = (config.goldGain.baseNormal + 50000 * config.goldGain.perKill) * 500;
+        const expPerHour = config.level.expPerKill.normal * 500000;
 
-        const goldReward = Math.floor(goldPerHour * cappedHours);
-        const expReward = Math.floor(expPerHour * cappedHours);
+        const goldReward = Math.floor(goldPerHour * hours);
+        const expReward = Math.floor(expPerHour * hours);
 
         await pool.query(
           `UPDATE save SET gold = gold + ?, exp = exp + ? WHERE user_id=?`,
@@ -34,7 +35,7 @@ router.get('/:userId', async (req, res) => {
         );
 
         offlineReward = {
-          hours: Math.round(cappedHours * 10) / 10,
+          hours: Math.round(hours * 10) / 10,
           gold: goldReward,
           exp: expReward
         };

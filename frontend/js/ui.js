@@ -86,7 +86,7 @@ const UI = {
     document.getElementById('sDrain').textContent = ((save.drain || 0) * 100).toFixed(2) + '%';
     document.getElementById('sGoldBonus').textContent = ((save.gold_bonus || 0) * 100).toFixed(1) + '%';
 
-    const needExp = Math.floor(100 * save.level * Math.pow(1.2, (save.level || 1) - 1));
+    const needExp = Math.floor(100 * save.level * Math.pow(1.15, (save.level || 1) - 1));
     document.getElementById('lvText').textContent = 'Lv.' + (save.level || 1);
     document.getElementById('expText').textContent = (save.exp || 0) + '/' + needExp;
     document.getElementById('expBar').style.width = Math.min(100, (save.exp || 0) / needExp * 100) + '%';

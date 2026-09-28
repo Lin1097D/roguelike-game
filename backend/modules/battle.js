@@ -6,7 +6,7 @@ const equipmentUtil = require('./equipment');
 const stats = require('./stats');
 
 function expNeed(level) {
-  return Math.floor(100 * level * Math.pow(1.2, level - 1));
+  return Math.floor(100 * level * Math.pow(1.15, level - 1));
 }
 
 function checkSkillPoints(oldLevel, newLevel) {
