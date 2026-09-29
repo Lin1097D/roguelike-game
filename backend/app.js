@@ -3,8 +3,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const userRouter = require('./modules/user');
+const roleRouter = require('./modules/role');
 const saveRouter = require('./modules/save');
 const battleRouter = require('./modules/battle');
 const equipmentApiRouter = require('./modules/equipment_api');
@@ -21,13 +23,14 @@ const monsterRouter = require('./modules/monster');
 const bossRouter = require('./modules/boss');
 const skillRouter = require('./modules/skill');
 const dungeonRouter = require('./modules/dungeon');
-const roleRouter = require('./modules/role');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api', userRouter);
+app.use('/api/role', roleRouter);
 app.use('/api/save', saveRouter);
 app.use('/api/battle', battleRouter);
 app.use('/api/equipment', equipmentApiRouter);
@@ -44,7 +47,6 @@ app.use('/api/monster', monsterRouter);
 app.use('/api/boss', bossRouter);
 app.use('/api/skill', skillRouter);
 app.use('/api/dungeon', dungeonRouter);
-app.use('/api/role', roleRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {

@@ -17,11 +17,10 @@ function checkSkillPoints(oldLevel, newLevel) {
   return points;
 }
 
-// 击杀怪物
 router.post('/kill', async (req, res) => {
-  const { userId, monsterType, damage, monsterName } = req.body;
+  const { saveId, monsterType, damage, monsterName } = req.body;
   try {
-    const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
     if (rows.length === 0) return res.json({ code: 1, msg: '存档不存在' });
     const s = rows[0];
 
@@ -38,17 +37,13 @@ router.post('/kill', async (req, res) => {
     let goldGain = Math.floor(goldBase);
     if (monsterType === 'elite') goldGain = Math.floor(goldBase * goldCfg.eliteMult);
     if (monsterType === 'boss')  goldGain = Math.floor(goldBase * goldCfg.bossMult);
-
     const goldBonus = s.gold_bonus || 0;
-    if (goldBonus > 0) {
-      goldGain = Math.floor(goldGain * (1 + goldBonus));
-    }
+    if (goldBonus > 0) goldGain = Math.floor(goldGain * (1 + goldBonus));
 
     const expGain = config.level.expPerKill[monsterType] || config.level.expPerKill.normal;
     let newExp = (s.exp || 0) + expGain;
     let newLevel = s.level || 1;
     let freePointsGain = 0;
-
     while (newLevel < config.level.maxLevel) {
       const need = expNeed(newLevel);
       if (newExp >= need) {
@@ -57,14 +52,11 @@ router.post('/kill', async (req, res) => {
         freePointsGain += config.level.pointsPerLevel;
         if (newLevel % 10 === 0) freePointsGain += config.level.bonusEvery10;
         if (newLevel % 50 === 0) freePointsGain += config.level.bonusEvery50;
-      } else {
-        break;
-      }
+      } else break;
     }
-
     const levelUp = newLevel > (s.level || 1);
-    const talentBonus = await stats.getTalentBonus(userId);
-	const skillPointsGain = checkSkillPoints(s.level || 1, newLevel);
+    const talentBonus = await stats.getTalentBonus(saveId);
+    const skillPointsGain = checkSkillPoints(s.level || 1, newLevel);
 
     await pool.query(
       `UPDATE save SET 
@@ -75,43 +67,48 @@ router.post('/kill', async (req, res) => {
         gold = gold + ?, jieli = ?,
         level = ?, exp = ?, free_points = free_points + ?,
         daily_kill = daily_kill + 1,
-		skill_points = skill_points + ?,
-		total_skill_points = total_skill_points + ?,
+        skill_points = skill_points + ?,
+        total_skill_points = total_skill_points + ?,
         total_damage = total_damage + ?,
+        max_combo = GREATEST(max_combo, ?),
         updated_at = NOW()
-       WHERE user_id = ?`,
+       WHERE id = ?`,
       [reward.atk, reward.hp, reward.hp, heal.hp,
        reward.mp, reward.mp, heal.mp,
        newKill, newElite, newBoss, goldGain, newJieli,
        newLevel, newExp, freePointsGain,
-	   skillPointsGain, skillPointsGain,
-       damage || 0,
-       userId]
+       skillPointsGain, skillPointsGain, damage || 0,
+       newKill,
+       saveId]
     );
 
-    // 记录怪物图鉴
     if (monsterName) {
       try {
-        await pool.query(
-          `INSERT INTO monster_log (user_id, monster_name, monster_type, kill_count)
-           VALUES (?, ?, ?, 1)
-           ON DUPLICATE KEY UPDATE kill_count = kill_count + 1`,
-          [userId, monsterName, monsterType]
-        );
-      } catch (e) {}
+        const [saveRows] = await pool.query('SELECT user_id FROM save WHERE id=?', [saveId]);
+        const userId = saveRows[0] ? saveRows[0].user_id : null;
+        if (userId) {
+          await pool.query(
+            `INSERT INTO monster_log (user_id, save_id, monster_name, monster_type, kill_count)
+             VALUES (?, ?, ?, ?, 1)
+             ON DUPLICATE KEY UPDATE kill_count = kill_count + 1`,
+            [userId, saveId, monsterName, monsterType]
+          );
+        }
+      } catch (e) {
+        console.error('[monster_log] 写入失败:', e.message);
+      }
     }
 
-    await stats.recalcAndSave(userId);
+    await stats.recalcAndSave(saveId);
 
     let droppedEquipment = null;
     let discardedEquipment = null;
     let bagFull = false;
 
-    // Boss 首杀掉神器
     if (monsterType === 'boss') {
       const [owned] = await pool.query(
-        "SELECT slot FROM equipment WHERE user_id=? AND (slot='artifact1' OR slot='artifact2')",
-        [userId]
+        "SELECT slot FROM equipment WHERE save_id=? AND (slot='artifact1' OR slot='artifact2')",
+        [saveId]
       );
       const ownedSlots = owned.map(o => o.slot);
       let artifactSlot = null;
@@ -121,54 +118,44 @@ router.post('/kill', async (req, res) => {
       if (artifactSlot) {
         const art = equipmentUtil.generateArtifact(artifactSlot, newKill);
         const [result] = await pool.query(
-          'INSERT INTO equipment (user_id, slot, name, quality, stat_value, affixes, set_name, equipped) VALUES (?,?,?,?,?,?,?,0)',
-          [userId, art.slot, art.name, art.quality, art.statValue, JSON.stringify(art.affixes || []), null]
+          'INSERT INTO equipment (save_id, slot, name, quality, stat_value, affixes, set_name, equipped) VALUES (?,?,?,?,?,?,?,0)',
+          [saveId, art.slot, art.name, art.quality, art.statValue, JSON.stringify(art.affixes || []), null]
         );
         art.id = result.insertId;
         droppedEquipment = art;
       }
     }
 
-    // 普通掉落
     if (!droppedEquipment) {
       const baseDropRate = config.dropRate[monsterType] || 0;
       const dropMult = (talentBonus && talentBonus.dropMult) ? talentBonus.dropMult : 1;
       const finalDropRate = baseDropRate * dropMult;
-
       let drop = null;
-      if (Math.random() < finalDropRate) {
-        drop = equipmentUtil.generateEquipment(monsterType, newKill);
-      }
+      if (Math.random() < finalDropRate) drop = equipmentUtil.generateEquipment(monsterType, newKill);
 
       if (drop) {
         const [slotBag] = await pool.query(
-          'SELECT * FROM equipment WHERE user_id=? AND equipped=0 AND slot=? ORDER BY stat_value ASC',
-          [userId, drop.slot]
+          'SELECT * FROM equipment WHERE save_id=? AND equipped=0 AND slot=? ORDER BY stat_value ASC',
+          [saveId, drop.slot]
         );
-
         if (slotBag.length >= equipmentUtil.SLOT_BAG_SIZE) {
           const worst = slotBag[0];
           if (drop.statValue > worst.stat_value) {
             await pool.query('DELETE FROM equipment WHERE id=?', [worst.id]);
             const [result] = await pool.query(
-              'INSERT INTO equipment (user_id, slot, name, quality, stat_value, affixes, set_name, equipped) VALUES (?,?,?,?,?,?,?,0)',
-              [userId, drop.slot, drop.name, drop.quality, drop.statValue, JSON.stringify(drop.affixes || []), drop.setName || null]
+              'INSERT INTO equipment (save_id, slot, name, quality, stat_value, affixes, set_name, equipped) VALUES (?,?,?,?,?,?,?,0)',
+              [saveId, drop.slot, drop.name, drop.quality, drop.statValue, JSON.stringify(drop.affixes || []), drop.setName || null]
             );
             drop.id = result.insertId;
             drop.replaced = worst.name;
             droppedEquipment = drop;
           } else {
-            discardedEquipment = {
-              name: drop.name,
-              quality: drop.quality,
-              slot: drop.slot,
-              statValue: drop.statValue
-            };
+            discardedEquipment = { name: drop.name, quality: drop.quality, slot: drop.slot, statValue: drop.statValue };
           }
         } else {
           const [result] = await pool.query(
-            'INSERT INTO equipment (user_id, slot, name, quality, stat_value, affixes, set_name, equipped) VALUES (?,?,?,?,?,?,?,0)',
-            [userId, drop.slot, drop.name, drop.quality, drop.statValue, JSON.stringify(drop.affixes || []), drop.setName || null]
+            'INSERT INTO equipment (save_id, slot, name, quality, stat_value, affixes, set_name, equipped) VALUES (?,?,?,?,?,?,?,0)',
+            [saveId, drop.slot, drop.name, drop.quality, drop.statValue, JSON.stringify(drop.affixes || []), drop.setName || null]
           );
           drop.id = result.insertId;
           droppedEquipment = drop;
@@ -176,7 +163,7 @@ router.post('/kill', async (req, res) => {
       }
     }
 
-    const [newRows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [newRows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
     res.json({
       code: 0,
       data: newRows[0],
@@ -184,139 +171,117 @@ router.post('/kill', async (req, res) => {
       discarded: discardedEquipment,
       bagFull,
       levelUp: levelUp ? { newLevel, freePointsGain } : null,
-	  expGain: expGain
+      expGain: expGain
     });
   } catch (e) {
     res.json({ code: 1, msg: e.message });
   }
 });
 
-// 受伤
 router.post('/hurt', async (req, res) => {
-  const { userId, damage } = req.body;
+  const { saveId, damage } = req.body;
   try {
-    const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
+    if (rows.length === 0) return res.json({ code: 1, msg: '存档不存在' });
     const s = rows[0];
     let newHp = s.hp - damage;
     let dead = false;
     let revived = false;
 
     if (newHp <= 0) {
-      const talentBonus = await stats.getTalentBonus(userId);
-      if (talentBonus && talentBonus.revive > 0 && Math.random() < talentBonus.revive) {
-        newHp = s.max_hp;
-        revived = true;
-      } else {
-        newHp = 0;
-        dead = true;
-      }
+      const talentBonus = await stats.getTalentBonus(saveId);
+      const skillBonus = await stats.calcSkillBonus(saveId);
+      const talentRevive = (talentBonus && talentBonus.revive) || 0;
+      const skillRevive = (skillBonus && skillBonus.revive) || 0;
+      const totalRevive = talentRevive + skillRevive;
+
+      if (totalRevive > 0 && Math.random() < totalRevive) {
+        newHp = s.max_hp; revived = true;
+      } else { newHp = 0; dead = true; }
     }
 
-    await pool.query(
-      'UPDATE save SET hp=?, total_damage_taken = total_damage_taken + ? WHERE user_id=?',
-      [newHp, damage, userId]
-    );
+    await pool.query('UPDATE save SET hp=?, total_damage_taken = total_damage_taken + ? WHERE id=?', [newHp, damage, saveId]);
     res.json({ code: 0, hp: newHp, dead, revived });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
-// 恢复
 router.post('/heal', async (req, res) => {
-  const { userId, hp, mp } = req.body;
+  const { saveId, hp, mp } = req.body;
   try {
     await pool.query(
-      'UPDATE save SET hp = LEAST(max_hp, hp + ?), mp = LEAST(max_mp, mp + ?) WHERE user_id=?',
-      [hp, mp, userId]
+      'UPDATE save SET hp = LEAST(max_hp, hp + ?), mp = LEAST(max_mp, mp + ?) WHERE id=?',
+      [hp, mp, saveId]
     );
-    const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
     res.json({ code: 0, data: rows[0] });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
-// 消耗 MP
 router.post('/useMp', async (req, res) => {
-  const { userId, cost } = req.body;
+  const { saveId, cost } = req.body;
   try {
-    const [rows] = await pool.query('SELECT mp FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT mp FROM save WHERE id=?', [saveId]);
+    if (rows.length === 0) return res.json({ code: 1, msg: '存档不存在' });
     if (rows[0].mp < cost) return res.json({ code: 1, msg: 'MP不足' });
-    await pool.query('UPDATE save SET mp = mp - ? WHERE user_id=?', [cost, userId]);
+    await pool.query('UPDATE save SET mp = mp - ? WHERE id=?', [cost, saveId]);
     res.json({ code: 0 });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
-// 每回合回复
 router.post('/tick', async (req, res) => {
-  const { userId } = req.body;
+  const { saveId } = req.body;
   const tick = config.tickHeal;
   try {
     await pool.query(
-      `UPDATE save SET 
-        mp = LEAST(max_mp, mp + ?),
-        hp = LEAST(max_hp, hp + ?)
-       WHERE user_id=?`,
-      [tick.mp, tick.hp, userId]
+      `UPDATE save SET mp = LEAST(max_mp, mp + ?), hp = LEAST(max_hp, hp + ?) WHERE id=?`,
+      [tick.mp, tick.hp, saveId]
     );
-    const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
     res.json({ code: 0, data: rows[0] });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
-// 死亡复活
 router.post('/revive', async (req, res) => {
-  const { userId } = req.body;
+  const { saveId } = req.body;
   try {
-    const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
+    if (rows.length === 0) return res.json({ code: 1, msg: '存档不存在' });
     const s = rows[0];
     const soul = Math.floor(s.kill_count * config.death.soulPerKill);
     const cfg = config.player;
     const newJieli = (s.jieli || 0) + config.jieli.perDeath;
 
-    const talentBonus = await stats.getTalentBonus(userId);
+    const talentBonus = await stats.getTalentBonus(saveId);
     const noReset = talentBonus && talentBonus.noReset;
 
     if (noReset) {
       await pool.query(
-        `UPDATE save SET gold=0, jieli=?, death_count = death_count + 1, updated_at=NOW() WHERE user_id=?`,
-        [newJieli, userId]
+        'UPDATE save SET gold=0, jieli=?, death_count = death_count + 1, max_combo=0, updated_at=NOW() WHERE id=?',
+        [newJieli, saveId]
       );
     } else {
       await pool.query(
         `UPDATE save SET 
           hp=?, max_hp=?, atk=?, mp=?, max_mp=?, crit_rate=?, dodge_rate=?,
           base_atk=?, base_max_hp=?, base_max_mp=?, base_crit_rate=?, base_dodge_rate=?,
-          kill_count=0, elite_count=0, boss_count=0, gold=0,
-          jieli=?,
-          death_count = death_count + 1,
-          updated_at=NOW()
-         WHERE user_id=?`,
+          kill_count=0, elite_count=0, boss_count=0, gold=0, jieli=?,
+          level=1, exp=0, max_combo=0,
+          death_count = death_count + 1, updated_at=NOW()
+         WHERE id=?`,
         [cfg.initHp, cfg.initHp, cfg.initAtk, cfg.initMp, cfg.initMp, cfg.initCrit, cfg.initDodge,
-         cfg.initAtk, cfg.initHp, cfg.initMp, cfg.initCrit, cfg.initDodge,
-         newJieli, userId]
+         cfg.initAtk, cfg.initHp, cfg.initMp, cfg.initCrit, cfg.initDodge, newJieli, saveId]
       );
-
-      await pool.query(
-        "DELETE FROM equipment WHERE user_id=? AND slot NOT IN ('artifact1','artifact2')",
-        [userId]
-      );
+      await pool.query("DELETE FROM equipment WHERE save_id=? AND slot NOT IN ('artifact1','artifact2')", [saveId]);
     }
 
-    await pool.query('UPDATE user SET soul_fragment = soul_fragment + ? WHERE id=?', [soul, userId]);
-    await stats.recalcAndSave(userId);
+    const [saveRows] = await pool.query('SELECT user_id FROM save WHERE id=?', [saveId]);
+    await pool.query('UPDATE user SET soul_fragment = soul_fragment + ? WHERE id=?', [soul, saveRows[0].user_id]);
+    await stats.recalcAndSave(saveId);
 
-    const [newRows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
-    const [userRows] = await pool.query('SELECT soul_fragment FROM user WHERE id=?', [userId]);
+    const [newRows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
+    const [userRows] = await pool.query('SELECT soul_fragment FROM user WHERE id=?', [saveRows[0].user_id]);
     res.json({ code: 0, data: newRows[0], soul: userRows[0].soul_fragment, gained: soul });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
 module.exports = router;

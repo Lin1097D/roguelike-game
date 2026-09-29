@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-router.get('/:userId', async (req, res) => {
-  const { userId } = req.params;
+router.get('/:saveId', async (req, res) => {
+  const { saveId } = req.params;
   try {
-    const [rows] = await pool.query('SELECT * FROM save WHERE user_id=?', [userId]);
+    const [rows] = await pool.query('SELECT * FROM save WHERE id=?', [saveId]);
     if (rows.length === 0) return res.json({ code: 1, msg: '存档不存在' });
     const s = rows[0];
 
-    const [userRows] = await pool.query('SELECT username, created_at FROM user WHERE id=?', [userId]);
+    const [userRows] = await pool.query('SELECT u.created_at FROM user u JOIN save s ON s.user_id = u.id WHERE s.id=?', [saveId]);
 
     res.json({
       code: 0,
@@ -27,22 +27,15 @@ router.get('/:userId', async (req, res) => {
         created_at: userRows[0].created_at
       }
     });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
 router.post('/playtime', async (req, res) => {
-  const { userId, seconds } = req.body;
+  const { saveId, seconds } = req.body;
   try {
-    await pool.query(
-      'UPDATE save SET play_time = play_time + ? WHERE user_id=?',
-      [seconds, userId]
-    );
+    await pool.query('UPDATE save SET play_time = play_time + ? WHERE id=?', [seconds, saveId]);
     res.json({ code: 0 });
-  } catch (e) {
-    res.json({ code: 1, msg: e.message });
-  }
+  } catch (e) { res.json({ code: 1, msg: e.message }); }
 });
 
 module.exports = router;
