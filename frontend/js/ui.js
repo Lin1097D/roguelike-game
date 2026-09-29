@@ -660,6 +660,53 @@ const UI = {
       </div>
     `;
   },
+  renderRoles(roles, allRoles) {
+    const el = document.getElementById('roleList');
+    if (!el) return;
+  
+    // 已创建的角色
+    let html = '';
+    if (roles.length > 0) {
+      html += '<div class="role-section-title">我的角色</div>';
+      html += roles.map(r => {
+        const cfg = allRoles.find(x => x.key === r.role_key) || {};
+        return `
+          <div class="role-item">
+            <div class="role-icon">${cfg.icon || '👤'}</div>
+            <div class="role-info">
+              <div class="role-name">${r.role_name}</div>
+              <div class="role-meta">Lv.${r.level || 1} · 攻击 ${r.atk || 0} · 击杀 ${r.kill_count || 0}</div>
+            </div>
+            <div class="role-actions">
+              <button class="role-btn" onclick="onRoleSwitch(${r.id})">进入</button>
+              <button class="role-btn role-btn-danger" onclick="onRoleDelete(${r.id})">删除</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  
+    // 可创建的角色
+    if (roles.length < 3) {
+      html += '<div class="role-section-title" style="margin-top:16px;">创建新角色</div>';
+      html += '<div class="role-create-grid">';
+      html += allRoles.map(r => `
+        <div class="role-create-item" onclick="onRoleCreate('${r.key}')">
+          <div class="role-icon-big">${r.icon}</div>
+          <div class="role-name">${r.name}</div>
+          <div class="role-desc">${r.desc}</div>
+          <div class="role-stats">
+            攻 ${r.init.atk} · 血 ${r.init.hp} · 精 ${r.init.mp}
+          </div>
+        </div>
+      `).join('');
+      html += '</div>';
+    } else {
+      html += '<div class="role-limit-tip">已达角色上限（3 个）</div>';
+    }
+  
+    el.innerHTML = html;
+  },
 };
 
 

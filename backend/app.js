@@ -21,6 +21,7 @@ const monsterRouter = require('./modules/monster');
 const bossRouter = require('./modules/boss');
 const skillRouter = require('./modules/skill');
 const dungeonRouter = require('./modules/dungeon');
+const roleRouter = require('./modules/role');
 
 const app = express();
 app.use(cors());
@@ -43,6 +44,7 @@ app.use('/api/monster', monsterRouter);
 app.use('/api/boss', bossRouter);
 app.use('/api/skill', skillRouter);
 app.use('/api/dungeon', dungeonRouter);
+app.use('/api/role', roleRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {

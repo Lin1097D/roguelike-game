@@ -81,4 +81,9 @@ const API = {
   getDungeonList: (userId) => API.request('/dungeon/' + userId),
   startDungeon: (userId, dungeonKey, useGold) => API.request('/dungeon/start', 'POST', { userId, dungeonKey, useGold }),
   finishDungeon: (userId, dungeonKey, win, killed) => API.request('/dungeon/finish', 'POST', { userId, dungeonKey, win, killed }),
+  
+  // 角色
+  getRoles: (userId) => API.request('/role/' + userId),
+  createRole: (userId, roleKey, roleName) => API.request('/role/create', 'POST', { userId, roleKey, roleName }),
+  deleteRole: (userId, roleId) => API.request('/role/delete', 'POST', { userId, roleId }),
 };

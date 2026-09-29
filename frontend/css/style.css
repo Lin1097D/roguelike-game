@@ -1226,3 +1226,97 @@ button, .tab, .btn {
 .tabs {
   display: none !important;
 }
+
+/* 角色管理 */
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.role-section-title {
+  font-size: 13px;
+  color: #d4af37;
+  font-weight: bold;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #5a4a20;
+}
+.role-item {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 10px;
+  gap: 10px;
+}
+.role-icon {
+  font-size: 32px;
+}
+.role-info {
+  flex: 1;
+}
+.role-name {
+  color: #e8dcc0;
+  font-size: 15px;
+  font-weight: bold;
+}
+.role-meta {
+  font-size: 11px;
+  color: #b8a878;
+  margin-top: 2px;
+}
+.role-actions {
+  display: flex;
+  gap: 4px;
+}
+.role-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: linear-gradient(180deg, #d4af37 0%, #8a6a2a 100%);
+  color: #0a0806;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.role-btn-danger {
+  background: linear-gradient(180deg, #8a2828 0%, #4a0a0a 100%);
+  color: #e8dcc0;
+}
+.role-create-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.role-create-item {
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid #3a3020;
+  border-radius: 6px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.role-create-item:hover {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.08);
+}
+.role-icon-big {
+  font-size: 36px;
+  margin-bottom: 4px;
+}
+.role-desc {
+  font-size: 11px;
+  color: #8a7a4a;
+  margin: 4px 0;
+}
+.role-stats {
+  font-size: 11px;
+  color: #4ecca3;
+}
+.role-limit-tip {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  padding: 12px;
+}

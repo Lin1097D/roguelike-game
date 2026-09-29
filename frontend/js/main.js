@@ -115,8 +115,8 @@ const MAIN_TABS = {
   more: {
     name: '更多',
     icon: '⚙️',
-    subtabs: ['stats', 'settings'],
-    default: 'stats'
+    subtabs: ['role','stats', 'settings'],
+    default: 'role'
   }
 };
 
@@ -133,6 +133,7 @@ const SUBTAB_NAMES = {
   daily: '每日',
   signin: '签到',
   achievement: '成就',
+  role: '角色',
   stats: '统计',
   settings: '设置'
 };
@@ -203,6 +204,7 @@ function switchSubTab(subTab, force) {
   if (subTab === 'daily') Daily.refresh(state);
   if (subTab === 'signin') Signin.refresh(state);
   if (subTab === 'achievement') Achievement.refresh(state);
+  if (subTab === 'role') Role.refresh(state);
   if (subTab === 'stats') Stats.refresh(state);
   if (subTab === 'settings') Settings.refresh();
   
